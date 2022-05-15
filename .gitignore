@@ -3,3 +3,17 @@
 
 # Ada Library Information
 *.ali
+
+
+#IDE
+*.idea
+*.vscode
+
+#CMake-associated files and valgrind dumps
+
+*/CMakeFiles
+*/*.cmake
+*/CMakeCache.txt
+*/vgcore.*
+*/Makefile
+*/Testing
