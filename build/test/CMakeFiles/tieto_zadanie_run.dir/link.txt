@@ -1,1 +1,0 @@
-/usr/bin/cc -Wall -pedantic -Wextra CMakeFiles/tieto_zadanie_run.dir/__/src/circular_buffer.c.o CMakeFiles/tieto_zadanie_run.dir/circular_buffer_test.c.o -o tieto_zadanie_run 

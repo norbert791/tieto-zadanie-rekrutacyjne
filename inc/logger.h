@@ -4,7 +4,7 @@
 typedef struct  Logger Logger;
 
 Logger* Logger_new();
-Logger* Logger_delete();
-Logger* Logger_persist_message(char message[restrict static 1]);
+void Logger_delete(Logger*);
+Logger* Logger_persist_message(Logger* logger, const char message[restrict static 1]);
 
 #endif

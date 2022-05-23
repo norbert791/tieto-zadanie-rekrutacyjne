@@ -1,1 +1,0 @@
-/usr/bin/clang -g CMakeFiles/tieto_zadanie_test.dir/__/src/circular_buffer.c.o CMakeFiles/tieto_zadanie_test.dir/circular_buffer_test.c.o -o tieto_zadanie_test 
