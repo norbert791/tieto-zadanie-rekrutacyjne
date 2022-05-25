@@ -1,7 +1,3 @@
-set(BINARY ${CMAKE_PROJECT_NAME}_test)
-
-set(SOURCES ../src/circular_buffer.c circular_buffer_test.c)
-
 if (CMAKE_C_COMPILER_ID MATCHES GNU)
     set (CMAKE_C_FLAGS "-Wall -pedantic -Wextra")
     set (CMAKE_C_FLAGS_DEBUG "-g")
@@ -14,6 +10,14 @@ if (CMAKE_C_COMPILER_ID MATCHES CLANG)
     set (CMAKE_C_FLAGS_RELEASE "-Werror")
 endif()
 
-add_test(circular_buffer_test ${BINARY} COMMAND ${BINARY})
 
-add_executable(${BINARY} ${SOURCES})
+enable_testing()
+
+add_executable(circular_buffer_test ${PROJECT_SOURCE_DIR}/src/circular_buffer.c circular_buffer_test.c)
+add_executable(proc_parser_test ${PROJECT_SOURCE_DIR}/src/proc_parser.c proc_parser_test.c)
+
+#target_link_libraries(circular_buffer_test TestedFiles)
+#target_link_libraries(proc_parser_test TestedFiles)
+
+add_test(NAME circular_buffer_test  COMMAND circular_buffer_test)
+add_test(NAME proc_parser_test  COMMAND proc_parser_test)

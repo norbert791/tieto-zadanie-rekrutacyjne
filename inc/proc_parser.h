@@ -21,10 +21,16 @@ typedef enum proc_parser_result {
  * @return 
  * 
  * Non-negative number indicating how many values have been parsed and stored successfuly
- * -1 if line started with 'cpu' and was skipped, without altering result array.
+ * -1 if line started exactly with 'cpu' and was skipped, without altering result array.
  * -2 if did not start with 'cpu' and was skipped, without altering result array.
+ * -3 if error occurred.
+ *  
+ * This distinction can be used for telling whether currently parsed section is before
+ * the section starting with cpu0, cpu1,... or past it. 
  */
-int proc_parser_parse_line(char buffer[static 5], uint64_t result[static 9]);
+int proc_parser_parse_line(const char buffer[static 5], uint64_t result[static 10]);
+
+double proc_parser_compute_core_usage(const uint64_t previous_values[static 10], const uint64_t current_values[static 10]);
 
 
 #endif

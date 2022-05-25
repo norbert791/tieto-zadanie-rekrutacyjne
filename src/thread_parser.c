@@ -1,3 +1,4 @@
+#include <string.h>
 #include "thread_parser.h"
 #include "proc_parser.h"
 #include "pcp_guard.h"
@@ -26,7 +27,8 @@ void* thread_parser(void* args) {
     /*TODO: find if there is upper limit for line width in proc/stat*/
     const size_t max_size = 400;
     char temporary_buffer[max_size];
-
+    uint64_t currentData[9] = {0};
+    uint64_t previousData[9] = {0};
 
     {
         thread_parser_arguments* temp = args;
@@ -53,33 +55,57 @@ void* thread_parser(void* args) {
             pthread_mutex_unlock(working_mtx);
             break;
         }
-        if (Synchronized_Circular_Buffer_lock(char_buffer) != 0) {
-            /*Error handling*/
+        if (pcp_guard_lock(char_buffer_guard) != 0) {
+            perror("Lock error\n");
+            continue;
         }
-        Circular_Buffer* temp = Synchronized_Circular_Buffer_get(char_buffer);
 
         char input_char;
-        if (Circular_Buffer_remove_single(temp, input_char) == 0) {
-            Synchronized_Circular_Buffer_wait_for_writer(char_buffer);
-            Circular_Buffer_remove_single(temp, input_char);   
+        if (Circular_Buffer_remove_single(char_buffer, &input_char) == 0) {
+            pcp_guard_wait_for_producer(char_buffer_guard);
+            Circular_Buffer_remove_single(char_buffer, &input_char);   
         }
-        Synchronized_Circular_Buffer_notify_writer(char_buffer);
-        
+        pcp_guard_notify_producer(char_buffer);
+        pcp_guard_unlock(char_buffer_guard);
+
         if (input_char == '\n') {
             temporary_buffer[index] = '\0';
             index = 0;
+            memcpy(previousData, currentData, 9);
+            int res = proc_parser_parse_line(temporary_buffer, currentData);
+            if (res == 10) {
+                double temp = proc_parser_compute_core_usage(previousData, currentData);
+                pcp_guard_lock(double_buffer_guard);
+                int c_b_result = circular_buffer_insert_single(double_buffer, &temp);
+                if (c_b_result == 0) {
+                    pcp_guard_wait_for_consumer(double_buffer_guard);
+                    circular_buffer_insert_single(double_buffer, &temp);
+                }
+                pcp_guard_notify_consumer(double_buffer);
+                pcp_guard_unlock(double_buffer);
+            }
+            if (res == -2) {
+                double temp = -1;
+                pcp_guard_lock(double_buffer_guard);
+                int c_b_result = circular_buffer_insert_single(double_buffer, &temp);
 
+                if (c_b_result == 0) {
+                    pcp_guard_wait_for_consumer(double_buffer_guard);
+                    circular_buffer_insert_single(double_buffer, &temp);
+                    pcp_guard_notify_consumer(double_buffer);
+                    pcp_guard_unlock(double_buffer);
+                }
+            }
         }
         else {
             temporary_buffer[index] = input_char;
             index++;
             if (index == max_size) {
                 /*Line width is larger than buffer - handle it accordingly */
+                temporary_buffer[max_size - 1] = '\0';
                 index = 0;
             }
-           // proc_parser_parse_line(temporary_buffer, )
         }
-
     }
 
     return NULL;

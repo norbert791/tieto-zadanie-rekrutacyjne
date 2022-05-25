@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include "circular_buffer.h"
-#include "thread_printer.h"
 #include "thread_reader.h"
 
 int main() {

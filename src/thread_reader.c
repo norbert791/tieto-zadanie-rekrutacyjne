@@ -52,6 +52,7 @@ void* thread_reader(void* reader_aguments) {
         if (input_char != EOF) {
             if (pcp_guard_lock(buffer) != 0) {
                 perror("Lock error\n");
+                continue;
             }
 
             if (circular_buffer_insert_single(buffer, &input_char) == 0) {

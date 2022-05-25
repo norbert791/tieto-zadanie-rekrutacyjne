@@ -1,4 +1,4 @@
-#ifndef PCP_GUARD H
+#ifndef PCP_GUAR_H
 #define PCP_GUARD_H
 
 #include <pthread.h>

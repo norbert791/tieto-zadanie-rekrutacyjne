@@ -67,43 +67,11 @@ int circular_buffer_remove_single(Circular_Buffer* buffer, void* restrict dest) 
     }
 }
 
-size_t circular_buffer_read_available(const Circular_Buffer  restrict *c_b) {
+size_t circular_buffer_read_available(const Circular_Buffer* restrict c_b) {
     return c_b->num_of_elements;
 }
 
-size_t circular_buffer_write_available(const Circular_Buffer  restrict *c_b) {
+size_t circular_buffer_write_available(const Circular_Buffer* restrict c_b) {
     return c_b->buffer_max_size - c_b->num_of_elements;
 }
 
-
-int Synchronized_Circular_Buffer_initialize(Synchronized_Circular_Buffer* wrapper, Circular_Buffer* buffer) {
-    if (wrapper == NULL) {
-        return -1;
-    }
-    wrapper->buffer = buffer;
-    wrapper->mutex = PTHREAD_MUTEX_INITIALIZER;
-    wrapper->consumer = PTHREAD_COND_INITIALIZER;
-    wrapper->producer = PTHREAD_COND_INITIALIZER;
-
-    return 0;
-}
-
-void Synchronized_Circular_Buffer_destroy(Synchronized_Circular_Buffer* wrapper) {
-
-}
-
-int Synchronized_Circular_Buffer_lock(Synchronized_Circular_Buffer* wrapepr) {
-
-}
-
-int Synchronized_Circular_Buffer_unlock(Synchronized_Circular_Buffer* wrapepr) {
-
-}
-
-int Synchronized_Circular_Buffer_notify_reader(Synchronized_Circular_Buffer* wrapepr) {
-
-}
-
-int Synchronized_Circular_Buffer_notify_writer(Synchronized_Circular_Buffer* wrapepr) {
-
-}
