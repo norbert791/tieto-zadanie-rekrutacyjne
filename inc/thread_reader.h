@@ -3,10 +3,11 @@
 
 #include <stdio.h>
 #include "pcp_guard.h"
+#include "circular_buffer.h"
 #include "logger.h"
 
 typedef struct thread_reader_arguments {
-    PCP_Guard* Circular_Buffer_guard;
+    PCP_Guard* circular_buffer_guard;
     Circular_Buffer* circular_buffer;
     FILE* input_file;
     bool* is_working;
@@ -14,7 +15,7 @@ typedef struct thread_reader_arguments {
 
 } thread_reader_arguments;
 
-void* thread_reader(void* args);
+void* thread_reader(void* reader_arguments);
 
 
 

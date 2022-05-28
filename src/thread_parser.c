@@ -6,8 +6,6 @@
 static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard);
 static inline void finilize_write(Circular_Buffer* char_buffer, PCP_Guard* guard);
 
-static double parse_lien(char buffer[static 1]);
-
 void* thread_parser(void* args) {
 
     /*Sanity check*/
@@ -20,15 +18,15 @@ void* thread_parser(void* args) {
     Circular_Buffer* double_buffer;
     PCP_Guard* char_buffer_guard;
     PCP_Guard* double_buffer_guard;
-    bool* is_working;
+    volatile bool* is_working;
     pthread_mutex_t* working_mtx;
 
     size_t index = 0;
     /*TODO: find if there is upper limit for line width in proc/stat*/
     const size_t max_size = 400;
     char temporary_buffer[max_size];
-    uint64_t currentData[9] = {0};
-    uint64_t previousData[9] = {0};
+    uint64_t currentData[10] = {0};
+    uint64_t previousData[10] = {0};
 
     {
         thread_parser_arguments* temp = args;
@@ -36,7 +34,7 @@ void* thread_parser(void* args) {
         char_buffer = temp->char_buffer;
         double_buffer = temp->double_buffer;
         char_buffer_guard = temp->char_buffer_guard;
-        double_buffer_guard = temp->char_buffer_guard;
+        double_buffer_guard = temp->double_buffer_guard;
         is_working = temp->is_working;
         working_mtx = temp->working_mutex;
     }
@@ -49,30 +47,33 @@ void* thread_parser(void* args) {
 
     while (true) {
         pthread_mutex_lock(working_mtx);
-        if (!is_working) {
+        if (!*is_working) {
             finilize_read(char_buffer, char_buffer_guard);
             finilize_write(double_buffer, double_buffer_guard);
             pthread_mutex_unlock(working_mtx);
             break;
         }
+        pthread_mutex_unlock(working_mtx);
         if (pcp_guard_lock(char_buffer_guard) != 0) {
-            perror("Lock error\n");
+            perror("Lock error: parser\n");
             continue;
         }
 
         char input_char;
-        if (Circular_Buffer_remove_single(char_buffer, &input_char) == 0) {
+        if (circular_buffer_remove_single(char_buffer, &input_char) == 0) {
             pcp_guard_wait_for_producer(char_buffer_guard);
-            Circular_Buffer_remove_single(char_buffer, &input_char);   
+            circular_buffer_remove_single(char_buffer, &input_char);   
         }
-        pcp_guard_notify_producer(char_buffer);
+        pcp_guard_notify_producer(char_buffer_guard);
         pcp_guard_unlock(char_buffer_guard);
 
         if (input_char == '\n') {
             temporary_buffer[index] = '\0';
+           // puts(temporary_buffer);
             index = 0;
-            memcpy(previousData, currentData, 9);
+            memcpy(previousData, currentData, 10);
             int res = proc_parser_parse_line(temporary_buffer, currentData);
+            
             if (res == 10) {
                 double temp = proc_parser_compute_core_usage(previousData, currentData);
                 pcp_guard_lock(double_buffer_guard);
@@ -81,9 +82,10 @@ void* thread_parser(void* args) {
                     pcp_guard_wait_for_consumer(double_buffer_guard);
                     circular_buffer_insert_single(double_buffer, &temp);
                 }
-                pcp_guard_notify_consumer(double_buffer);
-                pcp_guard_unlock(double_buffer);
+                pcp_guard_notify_consumer(double_buffer_guard);
+                pcp_guard_unlock(double_buffer_guard);
             }
+            
             if (res == -2) {
                 double temp = -1;
                 pcp_guard_lock(double_buffer_guard);
@@ -92,9 +94,10 @@ void* thread_parser(void* args) {
                 if (c_b_result == 0) {
                     pcp_guard_wait_for_consumer(double_buffer_guard);
                     circular_buffer_insert_single(double_buffer, &temp);
-                    pcp_guard_notify_consumer(double_buffer);
-                    pcp_guard_unlock(double_buffer);
+                    pcp_guard_notify_consumer(double_buffer_guard);
+                    
                 }
+                pcp_guard_unlock(double_buffer_guard);
             }
         }
         else {
@@ -114,13 +117,13 @@ void* thread_parser(void* args) {
 
 static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard) {
     /*lock on buffer */
-    pcp_guard_lock(char_buffer);
+    pcp_guard_lock(guard);
     /*Insert some garbage that will be discarded anyway, 
     NOTE: if buffer is full, nothing will happen*/
     char temp;
-    circular_buffer_remove_single(temp, &temp);
+    circular_buffer_remove_single(char_buffer, &temp);
     /*Notify reader. It will lock either lock on is_working or on buffer */
-    pcp_guard_notify_producer(char_buffer);
+    pcp_guard_notify_producer(guard);
     /*Relase buffer */
     pcp_guard_unlock(guard);
 }
@@ -141,7 +144,7 @@ static inline void finilize_write(Circular_Buffer* buffer, PCP_Guard* guard) {
     /*Insert some garbage that will be discarded anyway, 
     NOTE: if buffer is full, nothing will happen*/
     double d = 1.0;
-    Circular_Buffer_insert_single(buffer, &d);
+    circular_buffer_insert_single(buffer, &d);
     /*Notify reader. It will lock either lock on is_working or on buffer */
     pcp_guard_notify_consumer(guard);
     /*Relase buffer */

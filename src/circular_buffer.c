@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <errno.h>
 #include "circular_buffer.h"
 
 struct Circular_Buffer {
@@ -22,6 +23,7 @@ Circular_Buffer* circular_buffer_new(size_t buffer_size, size_t element_size) {
     Circular_Buffer* result = calloc(1, sizeof(*result) + buffer_size * element_size);
     
     if (result == NULL) {
+        errno = 0;
         return NULL;
     }
 
@@ -37,7 +39,7 @@ void circular_buffer_delete(Circular_Buffer* restrict buffer) {
     }
 }
 
-int circular_buffer_insert_single(Circular_Buffer* buffer, const void* restrict element) {
+int circular_buffer_insert_single(Circular_Buffer* restrict buffer, const void* restrict element) {
     if (buffer == NULL || element == NULL) {
         return -1;
     }
@@ -51,7 +53,7 @@ int circular_buffer_insert_single(Circular_Buffer* buffer, const void* restrict 
     return 0;
 }
 
-int circular_buffer_remove_single(Circular_Buffer* buffer, void* restrict dest) {
+int circular_buffer_remove_single(Circular_Buffer* restrict buffer, void* restrict dest) {
     if (buffer == NULL || dest == NULL) {
         return -1;
     }

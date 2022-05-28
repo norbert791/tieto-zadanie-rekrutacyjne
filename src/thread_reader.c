@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include <pthread.h>
-#include "logger.h"
+#include <unistd.h>
+#include <time.h>
+#include <errno.h>
 #include "thread_reader.h"
 #include "circular_buffer.h"
 #include "pcp_guard.h"
@@ -16,16 +18,17 @@ void* thread_reader(void* reader_aguments) {
         return NULL;
     }
 
+    const struct timespec sleep_time = {.tv_nsec = 0, .tv_sec = 1};
     PCP_Guard* guard;
     Circular_Buffer* buffer;
-    bool* is_working;
+    volatile bool* is_working;
     pthread_mutex_t* working_mtx;
     FILE* input_file;
 
     {
         thread_reader_arguments* temp = reader_aguments;
 
-        guard = temp->Circular_Buffer_guard;
+        guard = temp->circular_buffer_guard;
         buffer = temp->circular_buffer;
         is_working = temp->is_working;
         working_mtx = temp->working_mutex;
@@ -42,16 +45,18 @@ void* thread_reader(void* reader_aguments) {
 
     while (true) {
         pthread_mutex_lock(working_mtx);
-        if (!is_working) {
+        if (!*is_working) {
             finilize(buffer, guard);
             pthread_mutex_unlock(working_mtx);
             break;
         }
+        
         pthread_mutex_unlock(working_mtx);
         char input_char = fgetc(input_file);
+       
         if (input_char != EOF) {
-            if (pcp_guard_lock(buffer) != 0) {
-                perror("Lock error\n");
+            if (pcp_guard_lock(guard) != 0) {
+                perror("Lock error: reader\n");
                 continue;
             }
 
@@ -63,6 +68,11 @@ void* thread_reader(void* reader_aguments) {
             pcp_guard_unlock(guard);
         }
         else if (feof(input_file)) {
+            if (nanosleep(&sleep_time, NULL) != 0) {
+                errno = 0;
+                perror("Sleep error\n");
+            }
+            fflush(input_file);
             rewind(input_file);
         }
         else if (ferror(input_file)) {
@@ -70,7 +80,7 @@ void* thread_reader(void* reader_aguments) {
             perror("File error during read atempt\n");
         }
     }
-
+    return NULL;
 }
 
 

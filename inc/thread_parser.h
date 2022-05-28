@@ -18,6 +18,6 @@ typedef struct thread_parser_arguments {
 
 } thread_parser_arguments;
 
-void* thread_reader(void* args);
+void* thread_parser(void* parser_arguments);
 
 #endif
