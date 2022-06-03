@@ -4,20 +4,21 @@
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
+#include <string.h>
 #include "circular_buffer.h"
 #include "thread_reader.h"
 #include "thread_parser.h"
 #include "thread_printer.h"
 
-PCP_Guard char_buffer_guard;
-PCP_Guard double_buffer_guard;
+static PCP_Guard char_buffer_guard = PCP_GUARD_INITIALIZER;
+static PCP_Guard double_buffer_guard = PCP_GUARD_INITIALIZER;
 
-Circular_Buffer* reader_char_buffer;
-Circular_Buffer* parser_double_buffer;
+static Circular_Buffer* reader_char_buffer;
+static Circular_Buffer* parser_double_buffer;
 
-FILE* proc_file;
-bool is_working = true;
-pthread_mutex_t is_working_mutex = PTHREAD_MUTEX_INITIALIZER;
+static FILE* proc_file;
+static bool is_working = true;
+static pthread_mutex_t is_working_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void resources_release();
 static bool resources_initialization();
@@ -25,21 +26,22 @@ static bool threads_initialization();
 static void threads_join();
 static void term_handler(int var);
 
-pthread_t reader_thread;
-pthread_t parser_thread;
-pthread_t printer_thread;
+static pthread_t reader_thread;
+static pthread_t parser_thread;
+static pthread_t printer_thread;
 
-thread_reader_arguments reader_args;
-thread_parser_arguments parser_args;
-thread_printer_arguments printer_args;
+static thread_reader_arguments reader_args;
+static thread_parser_arguments parser_args;
+static thread_printer_arguments printer_args;
 
 int main() {
 
     if (!resources_initialization()) {
         return EXIT_FAILURE;
     }
- /*   
+    
     struct sigaction action;
+    memset(&action, 0, sizeof(action));
     action.sa_handler = term_handler;
 
     if (sigaction(SIGTERM, &action, NULL) == -1) {
@@ -47,7 +49,14 @@ int main() {
         perror("Sigaction error\n");
         resources_release();
         return EXIT_FAILURE;
-    }*/
+    }
+
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        errno = 0;
+        perror("Sigaction error\n");
+        resources_release();
+        return EXIT_FAILURE;
+    }
 
     if (!threads_initialization()) {
         perror("Threads setup failed");
@@ -140,24 +149,6 @@ static bool resources_initialization() {
         return false;
     }
 
-    if (pcp_guard_init(&char_buffer_guard) != PCP_SUCCESS) {
-        perror("Program initialization failed: synchronization error\n");
-        errno = 0;
-        circular_buffer_delete(reader_char_buffer);
-        circular_buffer_delete(parser_double_buffer);
-        pthread_mutex_destroy(&is_working_mutex);
-        return false;
-    }
-
-    if (pcp_guard_init(&double_buffer_guard) != PCP_SUCCESS) {
-        perror("Program initialization failed: synchronization error\n");
-        errno = 0;
-        circular_buffer_delete(reader_char_buffer);
-        circular_buffer_delete(parser_double_buffer);
-        pcp_guard_destroy(&char_buffer_guard);
-        pthread_mutex_destroy(&is_working_mutex);
-        return false;
-    }
     proc_file = fopen("/proc/stat", "r");
     if (proc_file == NULL) {
         errno = 0;

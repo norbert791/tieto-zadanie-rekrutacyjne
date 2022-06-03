@@ -21,6 +21,8 @@ typedef enum PCP_STATUS {
     NULL_ARGUMENT,
 }PCP_STATUS;
 
+#define PCP_GUARD_INITIALIZER {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, PTHREAD_COND_INITIALIZER}
+
 /**
  * @brief Structure combining two conditional variables,
  * one for producer and one for consumer and mutex

@@ -3,10 +3,32 @@
 #include "proc_parser.h"
 #include "pcp_guard.h"
 
-static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard);
+
+/**
+ * @brief Clean up before leaving. 
+ * Let us consider the following interleaving:
+ * 
+ * buffer has 0 bytes for read, is_working = true
+ * 
+ * Reader -> checks is_working and continues the job
+ * Program finishes -> is_working is set to false
+ * Writer -> checks is_working and leaves
+ * Reader -> waits for bytes to read
+ */
 static inline void finilize_write(Circular_Buffer* char_buffer, PCP_Guard* guard);
 
+/**
+ * @brief Clean up before leaving 
+ * Situation simillar to @see finilize_write
+ */
+static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard);
+
 void* thread_parser(void* args) {
+
+    enum {
+        temporary_buffer_size = 800,
+        previous_usage_size = 100,
+    };
 
     /*Sanity check*/
     if (args == NULL) {
@@ -23,10 +45,10 @@ void* thread_parser(void* args) {
 
     size_t index = 0;
     /*TODO: find if there is upper limit for line width in proc/stat*/
-    const size_t max_size = 400;
-    char temporary_buffer[max_size];
-    uint64_t currentData[10] = {0};
-    uint64_t previousData[10] = {0};
+    size_t computed_core = 0;
+    char temporary_buffer[temporary_buffer_size];
+    uint64_t parsed_data[10] = {0};
+    proc_parser_cpu_time previous_usage[previous_usage_size] = {0};
 
     {
         thread_parser_arguments* temp = args;
@@ -54,10 +76,7 @@ void* thread_parser(void* args) {
             break;
         }
         pthread_mutex_unlock(working_mtx);
-        if (pcp_guard_lock(char_buffer_guard) != 0) {
-            perror("Lock error: parser\n");
-            continue;
-        }
+        pcp_guard_lock(char_buffer_guard);
 
         char input_char;
         if (circular_buffer_remove_single(char_buffer, &input_char) == 0) {
@@ -68,44 +87,54 @@ void* thread_parser(void* args) {
         pcp_guard_unlock(char_buffer_guard);
 
         if (input_char == '\n') {
-            temporary_buffer[index] = '\0';
-           // puts(temporary_buffer);
-            index = 0;
-            memcpy(previousData, currentData, 10);
-            int res = proc_parser_parse_line(temporary_buffer, currentData);
             
+            temporary_buffer[index] = '\0';
+            index = 0;
+            int res = proc_parser_parse_line(temporary_buffer, parsed_data);
+
+            if (res == PROC_PARSER_TOTAL_USAGE_LINE) {
+                continue;
+            }
             if (res == 10) {
-                double temp = proc_parser_compute_core_usage(previousData, currentData);
+                proc_parser_cpu_time current_usage = proc_parser_compute_core_time(parsed_data);
+                double usage = proc_parser_cpu_time_compute_usage(&previous_usage[computed_core], &current_usage) * 100;
+                previous_usage[computed_core] = current_usage;
+                computed_core++;
+
                 pcp_guard_lock(double_buffer_guard);
-                int c_b_result = circular_buffer_insert_single(double_buffer, &temp);
+                int c_b_result = circular_buffer_insert_single(double_buffer, &usage);
                 if (c_b_result == 0) {
                     pcp_guard_wait_for_consumer(double_buffer_guard);
-                    circular_buffer_insert_single(double_buffer, &temp);
+                    circular_buffer_insert_single(double_buffer, &usage);
                 }
                 pcp_guard_notify_consumer(double_buffer_guard);
                 pcp_guard_unlock(double_buffer_guard);
             }
-            
-            if (res == -2) {
-                double temp = -1;
+            else if (res == PROC_PARSER_DISCARD_LINE) {
+                computed_core = 0;
+                double usage = THREAD_PARSER_END;
                 pcp_guard_lock(double_buffer_guard);
-                int c_b_result = circular_buffer_insert_single(double_buffer, &temp);
+                int c_b_result = circular_buffer_insert_single(double_buffer, &usage);
 
                 if (c_b_result == 0) {
                     pcp_guard_wait_for_consumer(double_buffer_guard);
-                    circular_buffer_insert_single(double_buffer, &temp);
+                    circular_buffer_insert_single(double_buffer, &usage);
                     pcp_guard_notify_consumer(double_buffer_guard);
                     
                 }
                 pcp_guard_unlock(double_buffer_guard);
             }
+            else {
+                /*Proper error handling needed*/
+                perror("buffer is too small\n");
+            }
         }
         else {
             temporary_buffer[index] = input_char;
             index++;
-            if (index == max_size) {
+            if (index == temporary_buffer_size) {
                 /*Line width is larger than buffer - handle it accordingly */
-                temporary_buffer[max_size - 1] = '\0';
+                temporary_buffer[temporary_buffer_size - 1] = '\0';
                 index = 0;
             }
         }
@@ -128,16 +157,7 @@ static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard)
     pcp_guard_unlock(guard);
 }
 
-/*
- * Clean up before leaving. Let us consider the following interleaving:
- * 
- * buffer has 0 bytes for read, is_working = true
- * 
- * Reader -> checks is_working and continues the job
- * Program finishes -> is_working is set to false
- * Writer -> checks is_working and leaves
- * Reader -> waits for bytes to read
- */
+
 static inline void finilize_write(Circular_Buffer* buffer, PCP_Guard* guard) {
     /*lock on buffer */
     pcp_guard_lock(guard);

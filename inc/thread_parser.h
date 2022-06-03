@@ -1,3 +1,9 @@
+/**
+ * @file thread_parser.h
+ * @brief Parsing thread that uses char_buffer to recieve raw data and
+ * double buffer to send % of core usage
+ *
+ */
 #ifndef THREAD_PARSER_H
 #define THREAD_PARSER_H
 
@@ -8,6 +14,13 @@
 #include "circular_buffer.h"
 #include "pcp_guard.h"
 
+#define THREAD_PARSER_END -1.0
+
+/**
+ * @brief thread_parser arguments: circular char buffer for retrieving raw data
+ * and circular double buffer for parsed data. PCP_Guards for synchronization.
+ * 
+ */
 typedef struct thread_parser_arguments {
     Circular_Buffer* char_buffer;
     Circular_Buffer* double_buffer;
