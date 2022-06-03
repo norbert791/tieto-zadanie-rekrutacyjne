@@ -8,6 +8,16 @@
 #include "pcp_guard.h"
 
 
+/*
+ * Clean up before leaving. Let us consider the following interleaving:
+ * 
+ * buffer has 0 bytes for read, is_working = true
+ * 
+ * parsing thread -> checks is_working and continues the job
+ * Program finishes -> is_working is set to false
+ * Writer -> checks is_working and leaves
+ * parsing thread -> waits for bytes to read
+ */
 static inline void finilize(Circular_Buffer* buffer, PCP_Guard* guard);
 
 void* thread_reader(void* reader_aguments) {
@@ -55,10 +65,7 @@ void* thread_reader(void* reader_aguments) {
         char input_char = fgetc(input_file);
        
         if (input_char != EOF) {
-            if (pcp_guard_lock(guard) != 0) {
-                perror("Lock error: reader\n");
-                continue;
-            }
+            pcp_guard_lock(guard);
 
             if (circular_buffer_insert_single(buffer, &input_char) == 0) {
                 pcp_guard_wait_for_consumer(guard);
@@ -83,26 +90,15 @@ void* thread_reader(void* reader_aguments) {
     return NULL;
 }
 
-
-/*
- * Clean up before leaving. Let us consider the following interleaving:
- * 
- * buffer has 0 bytes for read, is_working = true
- * 
- * parsing thread -> checks is_working and continues the job
- * Program finishes -> is_working is set to false
- * Writer -> checks is_working and leaves
- * parsing thread -> waits for bytes to read
- */
 static inline void finilize(Circular_Buffer* buffer, PCP_Guard* guard) {
-    /*lock on buffer */
+    /*lock on buffer guard*/
     pcp_guard_lock(guard);
     /*Insert some garbage that will be discarded anyway, 
     NOTE: if buffer is full, nothing will happen*/
     const char temp = ' ';
     circular_buffer_insert_single(buffer, &temp);
-    /*Notify reader. It will lock either lock on is_working or on buffer */
+    /*If reader is lock on buffer guard, then it will be released after unlock*/
     pcp_guard_notify_consumer(guard);
-    /*Relase buffer */
+    /*Relase buffer guard*/
     pcp_guard_unlock(guard);
 }
