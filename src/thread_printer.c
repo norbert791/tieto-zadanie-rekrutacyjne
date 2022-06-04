@@ -20,6 +20,10 @@ static void print_usage(double array[static 1]);
 
 void* thread_printer(void* printer_arguments) {
 
+    if (printer_arguments == NULL) {
+        return NULL;
+    }
+
     enum {
         temp_buffer_size = 200,
     };

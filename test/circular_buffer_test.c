@@ -2,7 +2,9 @@
 #include <inttypes.h>
 #include "circular_buffer.h"
 
-#define buffer_size 20
+typedef enum Circular_Buffer_Test_Constants {
+    buffer_size = 20
+} Circular_Buffer_Test_Constants;
 
 static void insert_test();
 static void remove_test();
@@ -103,8 +105,6 @@ static void insert_remove_test() {
 
     circular_buffer_delete(buffer);
 }
-
-#undef buffer_size
 
 int main() {
 

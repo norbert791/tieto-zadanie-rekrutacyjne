@@ -34,9 +34,7 @@ Circular_Buffer* circular_buffer_new(size_t buffer_size, size_t element_size) {
 }
 
 void circular_buffer_delete(Circular_Buffer* restrict buffer) {
-    if (buffer != NULL) {
-        free(buffer);
-    }
+    free(buffer); 
 }
 
 int circular_buffer_insert_single(Circular_Buffer* restrict buffer, const void* restrict element) {
@@ -47,7 +45,7 @@ int circular_buffer_insert_single(Circular_Buffer* restrict buffer, const void* 
             memcpy(&(buffer->buffer[buffer->write_index * buffer->element_size]), element, buffer->element_size);
             buffer->num_of_elements++;
             buffer->write_index++;
-        buffer->write_index %= buffer->buffer_max_size;
+            buffer->write_index %= buffer->buffer_max_size;
             return 1;
     }
     return 0;
