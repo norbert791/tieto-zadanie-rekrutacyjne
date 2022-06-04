@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include "pcp_guard.h"
 #include "circular_buffer.h"
-#include "logger.h"
 
 /**
  * @brief thread_reader arguments: circular char buffer for
