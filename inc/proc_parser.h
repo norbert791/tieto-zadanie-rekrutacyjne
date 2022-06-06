@@ -9,15 +9,11 @@
 #include <inttypes.h>
 
 typedef enum proc_parser_result {
-    TOTAL_USAGE_LINE,
-    CORE_USAGE_LINE,
-    DISCARD_LINE,
-    FAIL,
+    PROC_PARSER_TOTAL_USAGE_LINE = -1,
+    PROC_PARSER_DISCARD_LINE = -2,
+    PROC_PARSER_FAIL = -3,
+    PROC_PARSER_SUCCESS = 10,
 } proc_parser_result;
-
-#define PROC_PARSER_TOTAL_USAGE_LINE -1
-#define PROC_PARSER_DISCARD_LINE -2
-#define PROC_PARSER_FAIL -3
 
 typedef struct proc_parser_cpu_time {
     uint64_t total;
@@ -31,10 +27,10 @@ typedef struct proc_parser_cpu_time {
  * If buffer does not contain line starting with 'cpu?' result will not be altered
  * 
  * @param buffer null-terminated string with at least 4 characters
- * @param result array for storing result with space for at least 9 elements
+ * @param result array for storing result with space for at least 10 elements
  * @return 
  * 
- * Non-negative number indicating how many values have been parsed and stored successfuly
+ * Non-negative number indicating how many values have been parsed and stored successfully, equal to PROC_PARSER_SUCCESS if all values were pasrsed successfully
  * PROC_PARSER_TOTAL_USAGE_LINE if line started exactly with 'cpu' and was skipped, without altering the result array.
  * PROC_PARSER_DISCARD_LINE if did not start with 'cpu' and was skipped, without altering the result array.
  * PROC_PARSER_FAIL if error occurred.

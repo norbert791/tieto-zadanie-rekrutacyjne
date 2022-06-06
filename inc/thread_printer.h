@@ -8,6 +8,7 @@
 
 #include <stdbool.h>
 #include "pcp_guard.h"
+#include "watchdog.h"
 #include "circular_buffer.h"
 
 /**
@@ -19,7 +20,10 @@
 typedef struct thread_printer_arguments
 {
     PCP_Guard* circular_buffer_guard;
+    PCP_Guard* logger_buffer_guard;
     Circular_Buffer* circular_buffer;
+    Circular_Buffer* logger_buffer;    
+    Watchdog_Control_Unit* control_unit;
     bool* is_working;
     pthread_mutex_t* working_mutex;
 } thread_printer_arguments;

@@ -8,6 +8,7 @@
 #define PCP_GUARD_H
 
 #include <pthread.h>
+#include <time.h>
 
 /**
  * @brief Constants returned by some of the functions
@@ -113,5 +114,16 @@ int pcp_guard_wait_for_producer(PCP_Guard* guard);
  * @return int return value of pthread_cond_signal
  */
 int pcp_guard_wait_for_consumer(PCP_Guard* guard);
+
+
+/**
+ * @brief wrappter for pthread_cond_timedwait.
+ * The function behaves exactly as though pthrad_cond_timedwait(PCP_Guard->producer, (abstime)) would be called
+ * @see man pthread_cond_timedwait(3)
+ * 
+ * @param guard pointer to valid PCP_Guard
+ * @return int return value of pthread_cond_timedwait
+ */
+int pcp_guard_timed_wait_for_producer(PCP_Guard* guard, const struct timespec *restrict abstime);
 
 #endif

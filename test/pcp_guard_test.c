@@ -18,6 +18,7 @@ static void notify_producer();
 static void notify_consumer();
 static void wait_for_producer();
 static void wait_for_consumer();
+static void timed_wait();
 
 static void* consumer_wait(void* args);
 static void* producer_wait(void* args);
@@ -86,7 +87,7 @@ static void wait_for_consumer() {
     PCP_Guard guard;
     pcp_guard_init(&guard);
 
-    volatile bool var = true;
+    bool var = true;
 
     test_args args = {.guard = &guard, .var = &var};
 
@@ -121,7 +122,7 @@ static void wait_for_producer() {
     PCP_Guard guard;
     pcp_guard_init(&guard);
 
-    volatile bool var = true;
+    bool var = true;
 
     test_args args = {.guard = &guard, .var = &var};
 
@@ -150,10 +151,19 @@ static void wait_for_producer() {
     pcp_guard_destroy(&guard);
 }
 
+static void timed_wait() {
+    PCP_Guard guard = PCP_GUARD_INITIALIZER;
+    const struct timespec time_temp = {.tv_nsec = 100, .tv_sec = 0};
+
+    /*Fails if test hangs up*/
+    pcp_guard_timed_wait_for_producer(&guard, &time_temp);
+}
+
 int main() {
     lock();
     notify_producer();
     notify_consumer();
     wait_for_producer();
     wait_for_consumer();
+    timed_wait();
 }
