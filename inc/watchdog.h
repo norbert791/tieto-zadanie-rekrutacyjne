@@ -21,6 +21,8 @@ typedef struct Watchdog_Control_Unit {
     Watchdog_Status status;
 } Watchdog_Control_Unit;
 
+#define WATCHDOG_CONTROL_UNIT_INIT {PTHREAD_MUTEX_INITIALIZER, 0, WATCH_DOG_STATUS_UP}
+
 inline void watchdog_ping(Watchdog_Control_Unit* unit) {
     unit->status = WATCH_DOG_STATUS_UP;
 }
@@ -43,4 +45,17 @@ inline int watchdog_unit_lock(Watchdog_Control_Unit* unit) {
 inline int watchdog_unit_unlock(Watchdog_Control_Unit* unit) {
     return pthread_mutex_unlock(&unit->unit_mutex);
 }
+
+inline int watchdog_unit_atomic_ping(Watchdog_Control_Unit* puppy) {
+    pthread_mutex_lock(&puppy->unit_mutex);
+    puppy->status = WATCH_DOG_STATUS_UP;
+    return pthread_mutex_unlock(&puppy->unit_mutex);
+}
+
+inline int watchdog_unit_atomic_finish(Watchdog_Control_Unit* puppy) {
+    pthread_mutex_lock(&puppy->unit_mutex);
+    puppy->status = WATCH_DOG_STATUS_FINISHED;
+    return pthread_mutex_unlock(&puppy->unit_mutex);
+}
+
 #endif
