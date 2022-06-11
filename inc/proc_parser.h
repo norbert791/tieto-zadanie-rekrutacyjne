@@ -57,7 +57,4 @@ proc_parser_cpu_time proc_parser_compute_core_time(const uint64_t core_line[stat
  */
 double proc_parser_cpu_time_compute_usage(const proc_parser_cpu_time* previous, const proc_parser_cpu_time* current);
 
-double proc_parser_compute_core_usage(const uint64_t previous_values[static 10], const uint64_t current_values[static 10]);
-
-
 #endif

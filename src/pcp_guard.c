@@ -39,30 +39,16 @@ PCP_STATUS pcp_guard_destroy(PCP_Guard* guard) {
     return PCP_SUCCESS;
 }
 
-int pcp_guard_lock(PCP_Guard* guard) {
-    return pthread_mutex_lock(&(guard->mutex));
-}
+int pcp_guard_lock(PCP_Guard* guard);
 
-int pcp_guard_unlock(PCP_Guard* guard) {
-    return pthread_mutex_unlock(&(guard->mutex));
-}
+int pcp_guard_unlock(PCP_Guard* guard);
 
-int pcp_guard_wait_for_producer(PCP_Guard* guard) {
-    return pthread_cond_wait(&(guard->consumer), &(guard->mutex));
-}
+int pcp_guard_wait_for_producer(PCP_Guard* guard);
 
-int pcp_guard_wait_for_consumer(PCP_Guard* guard) {
-    return pthread_cond_wait(&(guard->producer), &(guard->mutex));
-}
+int pcp_guard_wait_for_consumer(PCP_Guard* guard);
 
-int pcp_guard_notify_producer(PCP_Guard* guard) {
-    return pthread_cond_signal(&(guard->producer));
-}
+int pcp_guard_notify_producer(PCP_Guard* guard);
 
-int pcp_guard_notify_consumer(PCP_Guard* guard) {
-    return pthread_cond_signal(&(guard->consumer));
-}
+int pcp_guard_notify_consumer(PCP_Guard* guard);
 
-int pcp_guard_timed_wait_for_producer(PCP_Guard* restrict guard, const struct timespec *restrict abstime) {
-    return pthread_cond_timedwait(&(guard->producer), &(guard->mutex), abstime);
-}
+int pcp_guard_timed_wait_for_producer(PCP_Guard* restrict guard, const struct timespec *restrict abstime);
