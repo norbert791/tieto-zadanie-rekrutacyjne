@@ -68,7 +68,9 @@ PCP_STATUS pcp_guard_destroy(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_mutex_lock
  */
-int pcp_guard_lock(PCP_Guard* guard);
+inline int pcp_guard_lock(PCP_Guard* guard) {
+    return pthread_mutex_lock(&(guard->mutex));
+}
 
 /**
  * @brief wrapper for pthread_mutex_unlock. The function behaves exactly as though
@@ -77,7 +79,9 @@ int pcp_guard_lock(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_mutex_unlock
  */
-int pcp_guard_unlock(PCP_Guard* guard);
+inline int pcp_guard_unlock(PCP_Guard* guard) {
+    return pthread_mutex_unlock(&(guard->mutex));
+}
 
 /**
  * @brief wrapper for pthread_cond_signal. The function behaves exactly as though
@@ -86,7 +90,9 @@ int pcp_guard_unlock(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_cond_signal
  */
-int pcp_guard_notify_producer(PCP_Guard* guard);
+inline int pcp_guard_notify_producer(PCP_Guard* guard) {
+    return pthread_cond_signal(&(guard->producer));
+}
 
 /**
  * @brief wrapper for pthread_cond_signal. The function behaves exactly as though
@@ -95,7 +101,9 @@ int pcp_guard_notify_producer(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_cond_signal
  */
-int pcp_guard_notify_consumer(PCP_Guard* guard);
+inline int pcp_guard_notify_consumer(PCP_Guard* guard) {
+    return pthread_cond_signal(&(guard->consumer));
+}
 
 /**
  * @brief wrapper for pthread_cond_wait. The function behaves exactly as though
@@ -104,7 +112,9 @@ int pcp_guard_notify_consumer(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_cond_signal
  */
-int pcp_guard_wait_for_producer(PCP_Guard* guard);
+inline int pcp_guard_wait_for_producer(PCP_Guard* guard) {
+    return pthread_cond_wait(&(guard->consumer), &(guard->mutex));
+}
 
 /**
  * @brief wrapper for pthread_cond_wait. The function behaves exactly as though
@@ -113,7 +123,9 @@ int pcp_guard_wait_for_producer(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_cond_signal
  */
-int pcp_guard_wait_for_consumer(PCP_Guard* guard);
+inline int pcp_guard_wait_for_consumer(PCP_Guard* guard) {
+    return pthread_cond_wait(&(guard->producer), &(guard->mutex));
+}
 
 
 /**
@@ -124,6 +136,8 @@ int pcp_guard_wait_for_consumer(PCP_Guard* guard);
  * @param guard pointer to valid PCP_Guard
  * @return int return value of pthread_cond_timedwait
  */
-int pcp_guard_timed_wait_for_producer(PCP_Guard* guard, const struct timespec *restrict abstime);
+inline int pcp_guard_timed_wait_for_producer(PCP_Guard* restrict guard, const struct timespec *restrict abstime) {
+    return pthread_cond_timedwait(&(guard->producer), &(guard->mutex), abstime);
+}
 
 #endif

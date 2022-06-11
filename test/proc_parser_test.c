@@ -4,7 +4,6 @@
 #include "assert.h"
 
 static void parse_line_test();
-static void compute_core_usage_test();
 static void compute_core_time_test();
 static void compute_core_usage_with_time();
 
@@ -70,16 +69,6 @@ static void parse_line_test() {
 
 }
 
-static void compute_core_usage_test() {
-
-    const uint64_t prev[10] = {89133, 407, 43245, 1141342, 36564, 5537, 819, 0, 0, 0};
-    const uint64_t current[10] =  {107454, 493, 50403, 1351241, 39551, 6702, 986, 0, 0, 0};
-
-    double expected_value = 0.1121722557479054 /*computed manually with bc*/;
-    double real = proc_parser_compute_core_usage(prev, current);
-    assert(fabs(real - expected_value) < 0.1);
-}
-
 static void compute_core_time_test() {
     const uint64_t prev[10] = {89133, 407, 43245, 1141342, 36564, 5537, 819, 0, 0, 0};
 
@@ -103,7 +92,6 @@ static void compute_core_usage_with_time() {
 
 int main() {
 
-    compute_core_usage_test();
     parse_line_test();
     compute_core_usage_with_time();
     compute_core_time_test();

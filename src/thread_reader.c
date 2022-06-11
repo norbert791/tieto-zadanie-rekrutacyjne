@@ -45,7 +45,7 @@ void* thread_reader(void* reader_aguments) {
         char_buffer_guard = temp->char_buffer_guard;
         char_buffer = temp->char_buffer;
         logger_buffer = temp->logger_buffer;
-        logger_buffer_guard = temp->char_buffer_guard;
+        logger_buffer_guard = temp->logger_buffer_guard;
         control_unit = temp->control_unit;
         is_working = temp->working;
         working_mtx = temp->working_mutex;
@@ -55,8 +55,8 @@ void* thread_reader(void* reader_aguments) {
     }
 
     /*Sanity check*/
-    if (char_buffer == NULL || char_buffer_guard == NULL || logger_buffer == NULL || logger_buffer_guard 
-        || is_working == NULL || working_mtx == NULL || input_file == NULL) {
+    if (char_buffer == NULL || char_buffer_guard == NULL || logger_buffer == NULL || logger_buffer_guard == NULL
+        || is_working == NULL || working_mtx == NULL || input_file == NULL || control_unit == NULL) {
         perror("One of arguments was NULL");
         return NULL;
     }

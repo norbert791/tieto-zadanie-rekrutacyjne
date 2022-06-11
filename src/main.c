@@ -86,7 +86,6 @@ int main() {
         pause();
         errno = 0;
     }
-    puts("Leaving\n");
     pthread_mutex_lock(&working_mutex);
     working = false;
     pthread_mutex_unlock(&working_mutex);
@@ -270,18 +269,19 @@ static inline bool threads_initialization(Circular_Buffer* restrict buffers[rest
 }
 
 static inline void threads_join() {
-    puts("reader\n");
+    //puts("reader\n");
     pthread_join(control_unit[0].thread_id, NULL);
-    puts("parser\n");
+   // puts("parser\n");
     pthread_join(control_unit[1].thread_id, NULL);
-    puts("printer\n");
+   // puts("printer\n");
     pthread_join(control_unit[2].thread_id, NULL);
-    puts("logger\n");
+  //  puts("logger\n");
     pthread_join(control_unit[3].thread_id, NULL);
-    puts("watchdog\n");
+  //  puts("watchdog\n");
     pthread_join(watchdog_id, NULL);
 }
 
 static void term_handler(int var) {
+    (char) var;
     stop_condition = 0;
 }

@@ -9,7 +9,7 @@
  * @brief Clean up before leaving. 
  * Let us consider the following interleaving:
  * 
- * buffer has 0 bytes for read, is_working = true
+ * buffer has 0 bytes to read, is_working = true
  * 
  * Reader -> checks is_working and continues the job
  * Program finishes -> is_working is set to false
@@ -82,11 +82,12 @@ void* thread_parser(void* args) {
     }
 
     while (true) {
+        thread_logger_send_log(logger_guard, logger_buffer, "test\n", LOGGER_PAYLOAD_TYPE_ERROR);
         pthread_mutex_lock(working_mtx);
         if (!*is_working) {
+            pthread_mutex_unlock(working_mtx);
             finilize_read(char_buffer, char_buffer_guard);
             finilize_write(double_buffer, double_buffer_guard);
-            pthread_mutex_unlock(working_mtx);
             watchdog_unit_atomic_finish(control_unit);
             break;
         }
@@ -149,10 +150,12 @@ void* thread_parser(void* args) {
             temporary_buffer[index] = input_char;
             index++;
             if (index == temporary_buffer_size) {
-                thread_logger_send_log(logger_guard, logger_buffer,
-                "Parser: Buffer is to small to accomodate data sent by reader\n", LOGGER_PAYLOAD_TYPE_WARNING);
-
+                if (strncmp(temporary_buffer, "cpu", 3) == 0) {
+                    thread_logger_send_log(logger_guard, logger_buffer,
+                    "Parser: Buffer size is to small to accumulate data sent by reader\n", LOGGER_PAYLOAD_TYPE_WARNING);
+                }
                 temporary_buffer[temporary_buffer_size - 1] = '\0';
+                temporary_buffer[0] = input_char;
                 index = 0;
             }
         }

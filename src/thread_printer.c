@@ -1,3 +1,4 @@
+#include <curses.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "thread_printer.h"
