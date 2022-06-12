@@ -62,3 +62,7 @@ int pcp_guard_notify_producer(PCP_Guard* guard) {
 int pcp_guard_notify_consumer(PCP_Guard* guard) {
     return pthread_cond_signal(&(guard->consumer));
 }
+
+int pcp_guard_timed_wait_for_producer(PCP_Guard* restrict guard, const struct timespec *restrict abstime) {
+    return pthread_cond_timedwait(&(guard->producer), &(guard->mutex), abstime);
+}

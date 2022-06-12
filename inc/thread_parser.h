@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #include "circular_buffer.h"
+#include "watchdog.h"
 #include "pcp_guard.h"
 
 #define THREAD_PARSER_END -1.0
@@ -24,8 +25,11 @@
 typedef struct thread_parser_arguments {
     Circular_Buffer* char_buffer;
     Circular_Buffer* double_buffer;
+    Circular_Buffer* logger_buffer;
+    PCP_Guard* logger_buffer_guard;
     PCP_Guard* char_buffer_guard;
     PCP_Guard* double_buffer_guard;
+    Watchdog_Control_Unit* control_unit;
     bool* is_working;
     pthread_mutex_t* working_mutex;
 

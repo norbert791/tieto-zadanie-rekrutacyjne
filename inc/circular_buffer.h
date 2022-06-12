@@ -77,10 +77,5 @@ size_t circular_buffer_write_available(const Circular_Buffer* restrict c_b);
  */
 size_t circular_buffer_read_available(const Circular_Buffer* restrict c_b);
 
-size_t circular_buffer_insert_multi(const Circular_Buffer* restrict c_b, size_t number_of_elements, const void* restrict array);
-
-size_t circular_buffer_remove_multi(const Circular_Buffer* restrict c_b, size_t number_of_elements, const void* restrict array);
-
-size_t circular_buffer_File_Write(FILE* file, const Circular_Buffer* restrict c_b, size_t number_of_bytes);
 
 #endif
