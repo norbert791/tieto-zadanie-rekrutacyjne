@@ -7,16 +7,16 @@ typedef struct Watchdog {
 
     size_t max_number_of_units;
     size_t number_of_units;
-    Watchdog_Control_Unit* control_units[]; /*FAM*/
+    WatchdogControlUnit* control_units[]; /*FAM*/
 
 } Watchdog;
 
-void watchdog_finish(Watchdog_Control_Unit* unit);
-void watchdog_ping(Watchdog_Control_Unit* unit);
-int watchdog_unit_lock(Watchdog_Control_Unit* unit);
-int watchdog_unit_unlock(Watchdog_Control_Unit* unit);
-int watchdog_unit_atomic_ping(Watchdog_Control_Unit* puppy);
-int watchdog_unit_atomic_finish(Watchdog_Control_Unit* puppy);
+void watchdog_finish(WatchdogControlUnit* unit);
+void watchdog_ping(WatchdogControlUnit* unit);
+int watchdog_unit_lock(WatchdogControlUnit* unit);
+int watchdog_unit_unlock(WatchdogControlUnit* unit);
+int watchdog_unit_atomic_ping(WatchdogControlUnit* puppy);
+int watchdog_unit_atomic_finish(WatchdogControlUnit* puppy);
 
 Watchdog* watchdog_new(const size_t size) {
 
@@ -40,7 +40,7 @@ void watchdog_delete(Watchdog* const restrict watch_dog) {
     free(watch_dog);
 }
 
-bool watchdog_add_puppy(Watchdog* const restrict watch_dog, Watchdog_Control_Unit* puppy) {
+bool watchdog_add_puppy(Watchdog* const restrict watch_dog, WatchdogControlUnit* puppy) {
     if (watch_dog == NULL || puppy == NULL) {
         return false;
     }
@@ -61,7 +61,7 @@ bool watchdog_add_puppy(Watchdog* const restrict watch_dog, Watchdog_Control_Uni
     return false;
 }
 
-void watchdog_remove_puppy(Watchdog* const restrict watch_dog, Watchdog_Control_Unit* puppy) {
+void watchdog_remove_puppy(Watchdog* const restrict watch_dog, WatchdogControlUnit* puppy) {
     
     if (watch_dog == NULL || puppy == NULL) {
         return;
@@ -79,7 +79,7 @@ void watchdog_remove_puppy(Watchdog* const restrict watch_dog, Watchdog_Control_
 bool watchdog_check_puppies(Watchdog* const watch_dog) {
     bool sweep = false;
     for (size_t i = 0; i < watch_dog->max_number_of_units; i++) {
-        Watchdog_Control_Unit* puppy_ptr = watch_dog->control_units[i];
+        WatchdogControlUnit* puppy_ptr = watch_dog->control_units[i];
         if (puppy_ptr != NULL) {
             watchdog_unit_lock(puppy_ptr);
             if (puppy_ptr->status == WATCH_DOG_STATUS_UP) {
@@ -99,7 +99,7 @@ bool watchdog_check_puppies(Watchdog* const watch_dog) {
 
 void watchdog_clear(Watchdog* const watch_dog) {
     for (size_t i = 0; i < watch_dog->max_number_of_units; i++) {
-        Watchdog_Control_Unit* puppy_ptr = watch_dog->control_units[i];
+        WatchdogControlUnit* puppy_ptr = watch_dog->control_units[i];
 
         if (puppy_ptr->status == WATCH_DOG_STATUS_ROUGE || puppy_ptr->status == WATCH_DOG_STATUS_FINISHED) {
             watch_dog->control_units[i] = NULL;

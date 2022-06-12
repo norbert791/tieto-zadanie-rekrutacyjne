@@ -4,11 +4,11 @@
 #include "logger_payload.h"
 
 
-bool thread_logger_send_log(PCP_Guard* restrict payload_buffer_guard, 
-                                            Circular_Buffer* restrict payload_ptr_buffer, 
-                                            const char message[restrict static 1], logger_payload_type type);
+bool thread_logger_send_log(PCPGuard* restrict payload_buffer_guard, 
+                                            CircularBuffer* restrict payload_ptr_buffer, 
+                                            const char message[restrict static 1], ELoggerPayloadType type);
 
-static inline void persist_to_file(FILE* logger_file, Logger_Payload* payload);
+static inline void persist_to_file(FILE* logger_file, LoggerPayload* payload);
 
 void* thread_logger(void* args) {
 
@@ -17,16 +17,16 @@ void* thread_logger(void* args) {
         return NULL;
     }
 
-    Circular_Buffer* payload_buffer = NULL;
-    PCP_Guard* buffer_guard = NULL;
+    CircularBuffer* payload_buffer = NULL;
+    PCPGuard* buffer_guard = NULL;
     pthread_mutex_t* working_mutex = NULL;
     bool* working = NULL;
     FILE* logger_file = NULL;
-    Watchdog_Control_Unit* control_unit = NULL;
+    WatchdogControlUnit* control_unit = NULL;
     const struct timespec cond_wait_time = {.tv_nsec = 0, .tv_sec = 1};
 
     {
-        thread_logger_arguments* temp = args;
+        ThreadLoggerArguments* temp = args;
 
         payload_buffer = temp->logger_payload_pointer_buffer;
         buffer_guard = temp->buffer_guard;
@@ -50,7 +50,7 @@ void* thread_logger(void* args) {
             break;
         }
         pthread_mutex_unlock(working_mutex);
-        Logger_Payload* payload = NULL;
+        LoggerPayload* payload = NULL;
         pcp_guard_lock(buffer_guard);
         if (circular_buffer_remove_single(payload_buffer, &payload) == 0) {
             pcp_guard_timed_wait_for_producer(buffer_guard, &cond_wait_time);
@@ -62,12 +62,13 @@ void* thread_logger(void* args) {
         persist_to_file(logger_file, payload);
         
         logger_payload_delete(payload);
+        payload = NULL;
     }
 
     return NULL;
 }
 
-static inline void persist_to_file(FILE* restrict logger_file, Logger_Payload* restrict payload) {
+static inline void persist_to_file(FILE* restrict logger_file, LoggerPayload* restrict payload) {
 
     char time_buffer[26];
     time_t time_now;

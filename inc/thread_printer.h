@@ -1,6 +1,7 @@
 /**
  * @file thread_printer.h
- * @brief Thread that recieves parsed data and prints them.
+ * @brief Thread that recieves parsed data through circular_buffer_guard
+ * and prints it to terminal.
  * 
  */
 #ifndef THREAD_PRINTER_H
@@ -17,16 +18,16 @@
  * and guard for synchronization
  * 
  */
-typedef struct thread_printer_arguments
+typedef struct ThreadPrinterArguments
 {
-    PCP_Guard* circular_buffer_guard;
-    PCP_Guard* logger_buffer_guard;
-    Circular_Buffer* circular_buffer;
-    Circular_Buffer* logger_buffer;    
-    Watchdog_Control_Unit* control_unit;
+    PCPGuard* circular_buffer_guard;
+    PCPGuard* logger_buffer_guard;
+    CircularBuffer* circular_buffer;
+    CircularBuffer* logger_buffer;    
+    WatchdogControlUnit* control_unit;
     bool* is_working;
     pthread_mutex_t* working_mutex;
-} thread_printer_arguments;
+} ThreadPrinterArguments;
 
 
 void* thread_printer(void* printer_argumets);

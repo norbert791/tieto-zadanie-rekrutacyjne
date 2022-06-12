@@ -16,7 +16,7 @@
  * Writer -> checks working and leaves
  * Reader -> waits for bytes to read
  */
-static inline void finilize(PCP_Guard* double_buffer_guard, Circular_Buffer* double_buffer);
+static inline void finilize(PCPGuard* double_buffer_guard, CircularBuffer* double_buffer);
 
 static void print_usage(double array[static 1]);
 
@@ -35,18 +35,18 @@ void* thread_printer(void* printer_arguments) {
         temp_buffer_size = 200,
     };
 
-    Circular_Buffer* double_buffer = NULL;
-    Circular_Buffer* logger_buffer = NULL;
-    PCP_Guard* double_buffer_guard = NULL;
-    PCP_Guard* logger_guard = NULL;
-    Watchdog_Control_Unit* control_unit = NULL;
+    CircularBuffer* double_buffer = NULL;
+    CircularBuffer* logger_buffer = NULL;
+    PCPGuard* double_buffer_guard = NULL;
+    PCPGuard* logger_guard = NULL;
+    WatchdogControlUnit* control_unit = NULL;
     bool* working = NULL;
     pthread_mutex_t* working_mutex = NULL;
     double temp_buffer[temp_buffer_size] = {0};
     size_t index = 0;
 
     {
-        thread_printer_arguments* temp = printer_arguments;
+        ThreadPrinterArguments* temp = printer_arguments;
 
         double_buffer = temp->circular_buffer;
         logger_buffer = temp->logger_buffer;
@@ -105,7 +105,7 @@ static void print_usage(double array[static 1]) {
     }
 }
 
-static inline void finilize(PCP_Guard* double_buffer_guard, Circular_Buffer* double_buffer) {
+static inline void finilize(PCPGuard* double_buffer_guard, CircularBuffer* double_buffer) {
     /*The lock on buffer guard*/
     pcp_guard_lock(double_buffer_guard);
     double temp;

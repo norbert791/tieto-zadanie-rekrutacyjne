@@ -14,13 +14,13 @@
  * @brief Constants returned by some of the functions
  * 
  */
-typedef enum PCP_STATUS {
+typedef enum EPCPStatus {
     PCP_SUCCESS,
     MUTEX_FAILURE,
     PRODUCER_FAILURE,
     CONSUMER_FAILURE,
     NULL_ARGUMENT,
-}PCP_STATUS;
+}EPCPStatus;
 
 #define PCP_GUARD_INITIALIZER {PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, PTHREAD_COND_INITIALIZER}
 
@@ -29,114 +29,114 @@ typedef enum PCP_STATUS {
  * one for producer and one for consumer and mutex
  * 
  */
-typedef struct PCP_Guard {
+typedef struct PCPGuard {
     pthread_mutex_t mutex;
     pthread_cond_t producer;
     pthread_cond_t consumer;
-} PCP_Guard;
+} PCPGuard;
 
 
 /**
- * @brief Initialize fields in target PCP_Guard.
+ * @brief Initialize fields in target PCPGuard.
  * If initialization of one of the fields fails, then all the other
- * fields are destroyed. Calling this function on PCP_Guard whose field(s) is(are)
+ * fields are destroyed. Calling this function on PCPGuard whose field(s) is(are)
  * initialized is undefined behaviour.
  * 
- * @param guard pointer to uninitialized PCP_Guard.
- * @return PCP_STATUS On success PCP_SUCCESS is returned. On failure,
+ * @param guard pointer to uninitialized PCPGuard.
+ * @return EPCPStatus On success PCP_SUCCESS is returned. On failure,
  * returns constant indicating which part of the initialization failed.
- * Additionally errno may be raised. @see man pthread_mutex_init(3), @see man pthread_cond_init(3)
+ * Additionally errno may be set. @see man pthread_mutex_init(3), @see man pthread_cond_init(3)
  */
-PCP_STATUS pcp_guard_init(PCP_Guard* guard);
+EPCPStatus pcp_guard_init(PCPGuard* guard);
 
 /**
- * @brief Destroy fields fields in target PCP_Guard. It shall be safe to call this function
+ * @brief Destroy fields fields in target PCPGuard. It shall be safe to call this function
  * on pointer to initialized guard unless said guard is in used or will be used before this function returns.
- * Otherwise, the behaviour is undefined, although PCP_STATUS indicating which part of the destruction failed may be returned
- * and additional errno flag may be raised @see pthread_mutex_destroy(3) @see pthread_cond_destroy(3); in such case
+ * Otherwise, the behaviour is undefined, although EPCPStatus indicating which part of the destruction failed may be returned
+ * and additionaly errno may be set @see pthread_mutex_destroy(3) @see pthread_cond_destroy(3); in such case
  * the state of the guard is undefined though.
  * 
- * @param guard pointer to initialized PCP_Guard
- * @return PCP_STATUS PCP PCP_SUCCESS on success.
+ * @param guard pointer to initialized PCPGuard
+ * @return EPCPStatus PCP PCP_SUCCESS on success.
  */
-PCP_STATUS pcp_guard_destroy(PCP_Guard* guard);
+EPCPStatus pcp_guard_destroy(PCPGuard* guard);
 
 /**
  * @brief wrapper for pthread_mutex_lock. The function behaves exactly as though
- * pthread_mutex_lock(PCP_Guard->mutex) would be called. @see man pthread_mutex_lock(3)
+ * pthread_mutex_lock(PCPGuard->mutex) would be called. @see man pthread_mutex_lock(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_mutex_lock
  */
-inline int pcp_guard_lock(PCP_Guard* guard) {
+inline int pcp_guard_lock(PCPGuard* guard) {
     return pthread_mutex_lock(&(guard->mutex));
 }
 
 /**
  * @brief wrapper for pthread_mutex_unlock. The function behaves exactly as though
- * pthread_mutex_lock(PCP_Guard->mutex) would be called. @see man pthread_mutex_unlock(3)
+ * pthread_mutex_lock(PCPGuard->mutex) would be called. @see man pthread_mutex_unlock(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_mutex_unlock
  */
-inline int pcp_guard_unlock(PCP_Guard* guard) {
+inline int pcp_guard_unlock(PCPGuard* guard) {
     return pthread_mutex_unlock(&(guard->mutex));
 }
 
 /**
  * @brief wrapper for pthread_cond_signal. The function behaves exactly as though
- * pthread_cond_signal(PCP_Guard->producer) would be called. @see man pthread_cond_signal(3)
+ * pthread_cond_signal(PCPGuard->producer) would be called. @see man pthread_cond_signal(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_cond_signal
  */
-inline int pcp_guard_notify_producer(PCP_Guard* guard) {
+inline int pcp_guard_notify_producer(PCPGuard* guard) {
     return pthread_cond_signal(&(guard->producer));
 }
 
 /**
  * @brief wrapper for pthread_cond_signal. The function behaves exactly as though
- * pthread_cond_signal(PCP_Guard->consumer) would be called. @see man pthread_cond_signal(3)
+ * pthread_cond_signal(PCPGuard->consumer) would be called. @see man pthread_cond_signal(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_cond_signal
  */
-inline int pcp_guard_notify_consumer(PCP_Guard* guard) {
+inline int pcp_guard_notify_consumer(PCPGuard* guard) {
     return pthread_cond_signal(&(guard->consumer));
 }
 
 /**
  * @brief wrapper for pthread_cond_wait. The function behaves exactly as though
- * pthread_cond_wait(PCP_Guard->consumer) would be called. @see man pthread_cond_wait(3)
+ * pthread_cond_wait(PCPGuard->consumer) would be called. @see man pthread_cond_wait(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_cond_signal
  */
-inline int pcp_guard_wait_for_producer(PCP_Guard* guard) {
+inline int pcp_guard_wait_for_producer(PCPGuard* guard) {
     return pthread_cond_wait(&(guard->consumer), &(guard->mutex));
 }
 
 /**
  * @brief wrapper for pthread_cond_wait. The function behaves exactly as though
- * pthread_cond_wait(PCP_Guard->producer) would be called. @see man pthread_cond_wait(3)
+ * pthread_cond_wait(PCPGuard->producer) would be called. @see man pthread_cond_wait(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_cond_signal
  */
-inline int pcp_guard_wait_for_consumer(PCP_Guard* guard) {
+inline int pcp_guard_wait_for_consumer(PCPGuard* guard) {
     return pthread_cond_wait(&(guard->producer), &(guard->mutex));
 }
 
 
 /**
  * @brief wrappter for pthread_cond_timedwait.
- * The function behaves exactly as though pthrad_cond_timedwait(PCP_Guard->producer, (abstime)) would be called
+ * The function behaves exactly as though pthrad_cond_timedwait(PCPGuard->producer, (abstime)) would be called
  * @see man pthread_cond_timedwait(3)
  * 
- * @param guard pointer to valid PCP_Guard
+ * @param guard pointer to valid PCPGuard
  * @return int return value of pthread_cond_timedwait
  */
-inline int pcp_guard_timed_wait_for_producer(PCP_Guard* restrict guard, const struct timespec *restrict abstime) {
+inline int pcp_guard_timed_wait_for_producer(PCPGuard* restrict guard, const struct timespec *restrict abstime) {
     return pthread_cond_timedwait(&(guard->producer), &(guard->mutex), abstime);
 }
 

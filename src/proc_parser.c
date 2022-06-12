@@ -5,7 +5,7 @@
 #include "proc_parser.h"
 
 
-int proc_parser_parse_line(const char buffer[const static 5], uint64_t result[static 10]) {
+int proc_parser_parse_line(const char buffer[const restrict static 5], uint64_t result[const restrict static 10]) {
 
     static const char* specifiers = "%*s" " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64;
     
@@ -25,16 +25,16 @@ int proc_parser_parse_line(const char buffer[const static 5], uint64_t result[st
     return symbols_read;
 }
 
-proc_parser_cpu_time proc_parser_compute_core_time(const uint64_t core_line[static 10]) {
+ProcParserCpuTime proc_parser_compute_core_time(const uint64_t core_line[const static 10]) {
     uint64_t idle = core_line[3] + core_line[4];
     uint64_t non_idle = core_line[0] + core_line[1] + core_line[2] + core_line[5] + core_line[6] + core_line[7];
 
     uint64_t total = idle + non_idle;
 
-    return (proc_parser_cpu_time) {.total = total, .idle = idle};;
+    return (ProcParserCpuTime) {.total = total, .idle = idle};;
 }
 
-double proc_parser_cpu_time_compute_usage(const proc_parser_cpu_time* previous, const proc_parser_cpu_time* current) {
+double proc_parser_cpu_time_compute_usage(const ProcParserCpuTime* const previous, const ProcParserCpuTime* const current) {
 
     double total_delta = current->total - previous->total;
     double idle_delta = current->idle - previous->idle;

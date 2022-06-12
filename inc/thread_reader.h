@@ -1,6 +1,7 @@
 /**
  * @file thread_reader.h
- * @brief Thread that reads raw data from /proc/stat and sends it.
+ * @brief Thread that reads raw data from input_file (pointing to /proc/stat) and sends it through
+ * char_buffer
  * 
  */
 #ifndef THREAD_READER_H
@@ -12,24 +13,17 @@
 #include "watchdog.h"
 #include "circular_buffer.h"
 
-/**
- * @brief thread_reader arguments: circular char buffer for
- * sending raw data, pcp guard for synchronization and
- * FILE* for reading from proc/stat.
- * 
- */
-
-typedef struct thread_reader_arguments {
-    PCP_Guard* char_buffer_guard;
-    PCP_Guard* logger_buffer_guard;
-    Circular_Buffer* char_buffer;
-    Circular_Buffer* logger_buffer;
-    Watchdog_Control_Unit* control_unit;
+typedef struct ThreadReaderArguments {
+    PCPGuard* char_buffer_guard;
+    PCPGuard* logger_buffer_guard;
+    CircularBuffer* char_buffer;
+    CircularBuffer* logger_buffer;
+    WatchdogControlUnit* control_unit;
     FILE* input_file;
     bool* working;
     pthread_mutex_t* working_mutex;
 
-} thread_reader_arguments;
+} ThreadReaderArguments;
 
 void* thread_reader(void* reader_arguments);
 

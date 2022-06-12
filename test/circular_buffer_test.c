@@ -2,9 +2,9 @@
 #include <inttypes.h>
 #include "circular_buffer.h"
 
-typedef enum Circular_Buffer_Test_Constants {
+typedef enum ECircularBufferTestConstants {
     buffer_size = 20
-} Circular_Buffer_Test_Constants;
+} ECircularBufferTestConstants;
 
 static void insert_test();
 static void remove_test();
@@ -12,7 +12,7 @@ static void new_test();
 static void insert_remove_test();
 
 static void new_test() {
-    Circular_Buffer* buffer = circular_buffer_new(0, 10);
+    CircularBuffer* buffer = circular_buffer_new(0, 10);
     assert(buffer == NULL);
     buffer = circular_buffer_new(5, 0);
     assert(buffer == NULL);
@@ -23,7 +23,7 @@ static void new_test() {
 
 static void insert_test() {
 
-    Circular_Buffer* buffer = circular_buffer_new(buffer_size, sizeof(char));
+    CircularBuffer* buffer = circular_buffer_new(buffer_size, sizeof(char));
     char test[buffer_size + 1] = {0};
 
     for (size_t i = 0; i < buffer_size; i++) {
@@ -42,7 +42,7 @@ static void insert_test() {
 }
 
 static void remove_test() {
-    Circular_Buffer* buffer = circular_buffer_new(buffer_size, sizeof(double));
+    CircularBuffer* buffer = circular_buffer_new(buffer_size, sizeof(double));
     double test[buffer_size];
     for (size_t i = 0; i < buffer_size; i++) {
         test[i] = (double) i;
@@ -87,7 +87,7 @@ static void insert_remove_test() {
         test[i] = i;
     }
 
-    Circular_Buffer* buffer = circular_buffer_new(buffer_size, sizeof(uint32_t));
+    CircularBuffer* buffer = circular_buffer_new(buffer_size, sizeof(uint32_t));
 
     for (size_t i = 0; i < buffer_size / 2; i++) {
         circular_buffer_insert_single(buffer, &test[i]);
