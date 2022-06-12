@@ -19,6 +19,7 @@
  * Writer -> checks is_working and leaves
  * parsing thread -> waits for bytes to read
  */
+
 static inline void finilize(Circular_Buffer* char_buffer, PCP_Guard* char_buffer_guard);
 
 void* thread_reader(void* reader_aguments) {
@@ -74,6 +75,7 @@ void* thread_reader(void* reader_aguments) {
         char input_char = fgetc(input_file);
         
         if (input_char != EOF) {
+
             pcp_guard_lock(char_buffer_guard);
 
             if (circular_buffer_insert_single(char_buffer, &input_char) == 0) {

@@ -14,6 +14,7 @@
 #include "thread_logger.h"
 
 
+
 static PCP_Guard guard[3] = {PCP_GUARD_INITIALIZER, PCP_GUARD_INITIALIZER, PCP_GUARD_INITIALIZER};
 static pthread_mutex_t working_mutex = PTHREAD_MUTEX_INITIALIZER;
 static Watchdog_Control_Unit control_unit[4] = {WATCHDOG_CONTROL_UNIT_INIT, WATCHDOG_CONTROL_UNIT_INIT,
@@ -37,6 +38,7 @@ static inline bool threads_initialization(Circular_Buffer* restrict buffers[rest
 static inline void threads_join();
 static void term_handler(int var);
 
+
 int main() {
 
     FILE* files[2] = {0};
@@ -58,13 +60,7 @@ int main() {
         perror("Sigaction error\n");
         return EXIT_FAILURE;
     }
-    if (sigaction(SIGINT, &action, NULL) == -1) {
-        errno = 0;
-        perror("Sigaction error\n");
-        return EXIT_FAILURE;
-    }
-    if (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0) {
-        perror("Failed to set mask\n");
+
         return EXIT_FAILURE;
     }
 
@@ -222,6 +218,7 @@ static inline bool threads_initialization(Circular_Buffer* restrict buffers[rest
         pthread_mutex_unlock(&working_mutex);
         return false;
     }
+
     if (pthread_create(&control_unit[0].thread_id, NULL, thread_reader, &reader_args) != 0) {
         perror("Thread reader creation error\n");
         pthread_join(control_unit[3].thread_id, NULL);

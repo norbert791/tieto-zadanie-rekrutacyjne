@@ -30,7 +30,7 @@ typedef struct proc_parser_cpu_time {
  * @param result array for storing result with space for at least 10 elements
  * @return 
  * 
- * Non-negative number indicating how many values have been parsed and stored successfully, equal to PROC_PARSER_SUCCESS if all values were pasrsed successfully
+
  * PROC_PARSER_TOTAL_USAGE_LINE if line started exactly with 'cpu' and was skipped, without altering the result array.
  * PROC_PARSER_DISCARD_LINE if did not start with 'cpu' and was skipped, without altering the result array.
  * PROC_PARSER_FAIL if error occurred.

@@ -2,37 +2,16 @@
 #include <unistd.h>
 #include "thread_printer.h"
 #include "thread_parser.h"
-#include "thread_logger.h"
-
-/**
- * @brief Clean up before leaving:
- * Let us consider the following interleaving
- * 
- * double_buffer has 0 bytes for write, working = true
- * 
- * writer -> checks working and continues the job
- * Program finishes -> working is set to false
- * Writer -> checks working and leaves
- * Reader -> waits for bytes to read
- */
-static inline void finilize(PCP_Guard* double_buffer_guard, Circular_Buffer* double_buffer);
 
 static void print_usage(double array[static 1]);
 
 void* thread_printer(void* printer_arguments) {
 
-    if (printer_arguments == NULL) {
-        perror("One of arguments equal to NULL\n");
-        return NULL;
-    }
-
-    if (printer_arguments == NULL) {
-        return NULL;
-    }
 
     enum {
         temp_buffer_size = 200,
     };
+
 
     Circular_Buffer* double_buffer = NULL;
     Circular_Buffer* logger_buffer = NULL;
@@ -88,6 +67,7 @@ void* thread_printer(void* printer_arguments) {
             index = 0;
         }
         if (index == temp_buffer_size) {
+
             thread_logger_send_log(logger_guard, logger_buffer,
             "Buffer size is to small\n", LOGGER_PAYLOAD_TYPE_WARNING);
         }
@@ -103,6 +83,7 @@ static void print_usage(double array[static 1]) {
         index++;
     }
 }
+
 
 static inline void finilize(PCP_Guard* double_buffer_guard, Circular_Buffer* double_buffer) {
     /*The lock on buffer guard*/

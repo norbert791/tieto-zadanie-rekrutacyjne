@@ -26,6 +26,7 @@ static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard)
 
 void* thread_parser(void* args) {
 
+
     if (args == NULL) {
         return NULL;
     }
@@ -110,10 +111,7 @@ void* thread_parser(void* args) {
             if (res == PROC_PARSER_TOTAL_USAGE_LINE) {
                 continue;
             }
-            if (res == PROC_PARSER_SUCCESS) {
-                proc_parser_cpu_time current_usage = proc_parser_compute_core_time(parsed_data);
-                double usage = proc_parser_cpu_time_compute_usage(
-                                &previous_usage[computed_core], &current_usage) * 100;
+
                 previous_usage[computed_core] = current_usage;
                 computed_core++;
 
@@ -141,16 +139,13 @@ void* thread_parser(void* args) {
                 pcp_guard_unlock(double_buffer_guard);
             }
             else {
-                thread_logger_send_log(logger_guard, logger_buffer,
-                "Parser: Buffer is to small to accomodate parsed results\n", LOGGER_PAYLOAD_TYPE_WARNING);
+
             }
         }
         else {
             temporary_buffer[index] = input_char;
             index++;
             if (index == temporary_buffer_size) {
-                thread_logger_send_log(logger_guard, logger_buffer,
-                "Parser: Buffer is to small to accomodate data sent by reader\n", LOGGER_PAYLOAD_TYPE_WARNING);
 
                 temporary_buffer[temporary_buffer_size - 1] = '\0';
                 index = 0;
