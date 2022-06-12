@@ -3,7 +3,7 @@
 #include <errno.h>
 #include "pcp_guard.h" 
 
-PCP_STATUS pcp_guard_init(PCP_Guard* guard) {
+EPCPStatus pcp_guard_init(PCPGuard* const guard) {
 
     if (guard == NULL) {
         return NULL_ARGUMENT;
@@ -25,7 +25,7 @@ PCP_STATUS pcp_guard_init(PCP_Guard* guard) {
 
 }
 
-PCP_STATUS pcp_guard_destroy(PCP_Guard* guard) {
+EPCPStatus pcp_guard_destroy(PCPGuard* const guard) {
 
     if (pthread_mutex_destroy(&(guard->mutex)) != 0) {
         return MUTEX_FAILURE;
@@ -39,16 +39,16 @@ PCP_STATUS pcp_guard_destroy(PCP_Guard* guard) {
     return PCP_SUCCESS;
 }
 
-int pcp_guard_lock(PCP_Guard* guard);
+int pcp_guard_lock(PCPGuard* guard);
 
-int pcp_guard_unlock(PCP_Guard* guard);
+int pcp_guard_unlock(PCPGuard* guard);
 
-int pcp_guard_wait_for_producer(PCP_Guard* guard);
+int pcp_guard_wait_for_producer(PCPGuard* guard);
 
-int pcp_guard_wait_for_consumer(PCP_Guard* guard);
+int pcp_guard_wait_for_consumer(PCPGuard* guard);
 
-int pcp_guard_notify_producer(PCP_Guard* guard);
+int pcp_guard_notify_producer(PCPGuard* guard);
 
-int pcp_guard_notify_consumer(PCP_Guard* guard);
+int pcp_guard_notify_consumer(PCPGuard* guard);
 
-int pcp_guard_timed_wait_for_producer(PCP_Guard* restrict guard, const struct timespec *restrict abstime);
+int pcp_guard_timed_wait_for_producer(PCPGuard* restrict guard, const struct timespec *restrict abstime);

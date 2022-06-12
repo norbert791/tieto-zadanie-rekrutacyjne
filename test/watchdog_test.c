@@ -11,7 +11,7 @@ static void lock_unlock_test();
 static void number_of_units_test();
 
 void ping_finish_test() {
-    Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_DOWN, .thread_id = 0, .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
+    WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_DOWN, .thread_id = 0, .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
 
     watchdog_ping(&unit);
 
@@ -29,7 +29,7 @@ void ping_finish_test() {
 
 static void number_of_units_test() {
     Watchdog* dog = watchdog_new(1);
-    Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_UP, .thread_id = 0, 
+    WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_UP, .thread_id = 0, 
                             .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
 
     assert(watchdog_number_of_units(dog) == 0);
@@ -42,7 +42,7 @@ static void number_of_units_test() {
 static void mark_and_sweep_test() {
     
     {
-        Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_UP, .thread_id = 0, 
+        WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_UP, .thread_id = 0, 
                             .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
         Watchdog* dog = watchdog_new(1);
         watchdog_add_puppy(dog, &unit);
@@ -55,7 +55,7 @@ static void mark_and_sweep_test() {
     }
 
     {
-        Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_FINISHED, .thread_id = 0, 
+        WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_FINISHED, .thread_id = 0, 
                             .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
         Watchdog* dog = watchdog_new(1);
         watchdog_add_puppy(dog, &unit);
@@ -68,7 +68,7 @@ static void mark_and_sweep_test() {
 }
 
 static void lock_unlock_test() {
-    Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_UP, .thread_id = 0, 
+    WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_UP, .thread_id = 0, 
                             .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
 
     watchdog_unit_lock(&unit);
@@ -76,7 +76,7 @@ static void lock_unlock_test() {
 }
 
 static void clear_test() {
-    Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_ROUGE, .thread_id = 0, 
+    WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_ROUGE, .thread_id = 0, 
                             .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
     Watchdog* dog = watchdog_new(1);
 
@@ -99,9 +99,9 @@ static void create_destroy_test() {
 
 static void add_remove_test() {
 
-    Watchdog_Control_Unit unit = {.status = WATCH_DOG_STATUS_FINISHED, .thread_id = 0, 
+    WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_FINISHED, .thread_id = 0, 
                         .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
-    Watchdog_Control_Unit unit2 = {.status = WATCH_DOG_STATUS_FINISHED, .thread_id = 0, 
+    WatchdogControlUnit unit2 = {.status = WATCH_DOG_STATUS_FINISHED, .thread_id = 0, 
                         .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
     Watchdog* dog = watchdog_new(1);
 

@@ -14,25 +14,25 @@
 #include "thread_logger.h"
 
 
-static PCP_Guard guard[3] = {PCP_GUARD_INITIALIZER, PCP_GUARD_INITIALIZER, PCP_GUARD_INITIALIZER};
+static PCPGuard guard[3] = {PCP_GUARD_INITIALIZER, PCP_GUARD_INITIALIZER, PCP_GUARD_INITIALIZER};
 static pthread_mutex_t working_mutex = PTHREAD_MUTEX_INITIALIZER;
-static Watchdog_Control_Unit control_unit[4] = {WATCHDOG_CONTROL_UNIT_INIT, WATCHDOG_CONTROL_UNIT_INIT,
+static WatchdogControlUnit control_unit[4] = {WATCHDOG_CONTROL_UNIT_INIT, WATCHDOG_CONTROL_UNIT_INIT,
                                                 WATCHDOG_CONTROL_UNIT_INIT, WATCHDOG_CONTROL_UNIT_INIT};
 static pthread_t watchdog_id = 0;
 static bool working = true;
 static volatile sig_atomic_t stop_condition = 1;
 
-static thread_reader_arguments reader_args;
-static thread_parser_arguments parser_args;
-static thread_printer_arguments printer_args;
-static thread_watchdog_arguments watchdog_args;
-static thread_logger_arguments logger_args;
+static ThreadReaderArguments reader_args;
+static ThreadParserArguments parser_args;
+static ThreadPrinterArguments printer_args;
+static ThreadWatchdogArguments watchdog_args;
+static ThreadLoggerArguments logger_args;
 
-static inline void resources_release(Circular_Buffer* restrict buffers[restrict static 3],
+static inline void resources_release(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog** restrict watchdog);
-static inline bool resource_initialization(Circular_Buffer* restrict buffers[restrict static 3],
+static inline bool resource_initialization(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog** restrict watchdog);
-static inline bool threads_initialization(Circular_Buffer* restrict buffers[restrict static 3],
+static inline bool threads_initialization(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog* restrict watchdog);
 static inline void threads_join();
 static void term_handler(int var);
@@ -40,7 +40,7 @@ static void term_handler(int var);
 int main() {
 
     FILE* files[2] = {0};
-    Circular_Buffer* buffers[3] = {0};
+    CircularBuffer* buffers[3] = {0};
     Watchdog* watchdog = NULL;
     sigset_t mask;
     sigemptyset(&mask);
@@ -95,7 +95,7 @@ int main() {
     return 0;
 }
 
-static inline bool resource_initialization(Circular_Buffer* restrict buffers[restrict static 3],
+static inline bool resource_initialization(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog** watchdog) {
 
     /*char_buffer*/
@@ -152,13 +152,13 @@ static inline bool resource_initialization(Circular_Buffer* restrict buffers[res
     return true;
 }
 
-static inline void resources_release(Circular_Buffer* restrict buffers[restrict static 3],
+static inline void resources_release(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog** restrict watchdog) {
 
         circular_buffer_delete(buffers[0]);
         circular_buffer_delete(buffers[1]);
         
-        Logger_Payload* temp = NULL;
+        LoggerPayload* temp = NULL;
         while (circular_buffer_remove_single(buffers[2], &temp) > 0) {
             logger_payload_delete(temp);
         }
@@ -170,7 +170,7 @@ static inline void resources_release(Circular_Buffer* restrict buffers[restrict 
         fclose(files[1]);
 }
 
-static inline bool threads_initialization(Circular_Buffer* restrict buffers[restrict static 3],
+static inline bool threads_initialization(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog* restrict watchdog) {
 
     reader_args.char_buffer = buffers[0];
@@ -282,6 +282,5 @@ static inline void threads_join() {
 }
 
 static void term_handler(int var) {
-    (char) var;
     stop_condition = 0;
 }

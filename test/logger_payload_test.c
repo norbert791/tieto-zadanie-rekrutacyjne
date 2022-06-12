@@ -9,25 +9,25 @@ static void logger_type_to_string_test();
 
 static void logger_new_delete_test() {
     {
-        Logger_Payload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_WARNING, "TEST");
+        LoggerPayload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_WARNING, "TEST");
         logger_payload_delete(payload);
     }
 
     {
-        Logger_Payload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_ERROR, "");
+        LoggerPayload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_ERROR, "");
         assert(payload == NULL);
     }
 
 }
 
 static void logger_get_message_test() {
-    Logger_Payload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_WARNING, "TEST");
+    LoggerPayload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_WARNING, "TEST");
     assert(strcmp(logger_payload_get_message(payload), "TEST") == 0);
     logger_payload_delete(payload);
 }
 
 static void logger_get_type_test() {
-    Logger_Payload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_ERROR, "TEST");
+    LoggerPayload* payload = logger_payload_new(LOGGER_PAYLOAD_TYPE_ERROR, "TEST");
     assert(logger_payload_get_type(payload) == LOGGER_PAYLOAD_TYPE_ERROR);
     logger_payload_delete(payload);
 }

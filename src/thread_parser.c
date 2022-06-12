@@ -16,13 +16,13 @@
  * Writer -> checks is_working and leaves
  * Reader -> waits for bytes to read
  */
-static inline void finilize_write(Circular_Buffer* char_buffer, PCP_Guard* guard);
+static inline void finilize_write(CircularBuffer* char_buffer, PCPGuard* guard);
 
 /**
  * @brief Clean up before leaving 
  * Situation simillar to @see finilize_write
  */
-static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard);
+static inline void finilize_read(CircularBuffer* char_buffer, PCPGuard* guard);
 
 void* thread_parser(void* args) {
 
@@ -41,13 +41,13 @@ void* thread_parser(void* args) {
         return NULL;
     }
 
-    Circular_Buffer* char_buffer = NULL;
-    Circular_Buffer* double_buffer = NULL;
-    Circular_Buffer* logger_buffer = NULL;
-    PCP_Guard* logger_guard = NULL;
-    PCP_Guard* char_buffer_guard = NULL;
-    PCP_Guard* double_buffer_guard = NULL;
-    Watchdog_Control_Unit* control_unit = NULL;
+    CircularBuffer* char_buffer = NULL;
+    CircularBuffer* double_buffer = NULL;
+    CircularBuffer* logger_buffer = NULL;
+    PCPGuard* logger_guard = NULL;
+    PCPGuard* char_buffer_guard = NULL;
+    PCPGuard* double_buffer_guard = NULL;
+    WatchdogControlUnit* control_unit = NULL;
     bool* is_working = NULL;
     pthread_mutex_t* working_mtx = NULL;
 
@@ -56,10 +56,10 @@ void* thread_parser(void* args) {
     size_t computed_core = 0;
     char temporary_buffer[temporary_buffer_size];
     uint64_t parsed_data[10] = {0};
-    proc_parser_cpu_time previous_usage[previous_usage_size] = {0};
+    ProcParserCpuTime previous_usage[previous_usage_size] = {0};
 
     {
-        thread_parser_arguments* temp = args;
+        ThreadParserArguments* temp = args;
 
         char_buffer = temp->char_buffer;
         double_buffer = temp->double_buffer;
@@ -82,7 +82,6 @@ void* thread_parser(void* args) {
     }
 
     while (true) {
-        thread_logger_send_log(logger_guard, logger_buffer, "test\n", LOGGER_PAYLOAD_TYPE_ERROR);
         pthread_mutex_lock(working_mtx);
         if (!*is_working) {
             pthread_mutex_unlock(working_mtx);
@@ -112,7 +111,7 @@ void* thread_parser(void* args) {
                 continue;
             }
             if (res == PROC_PARSER_SUCCESS) {
-                proc_parser_cpu_time current_usage = proc_parser_compute_core_time(parsed_data);
+                ProcParserCpuTime current_usage = proc_parser_compute_core_time(parsed_data);
                 double usage = proc_parser_cpu_time_compute_usage(
                                 &previous_usage[computed_core], &current_usage) * 100;
                 previous_usage[computed_core] = current_usage;
@@ -161,12 +160,11 @@ void* thread_parser(void* args) {
         }
         watchdog_unit_atomic_ping(control_unit);
     }
-
     return NULL;
 }
 
 
-static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard) {
+static inline void finilize_read(CircularBuffer* char_buffer, PCPGuard* guard) {
     /*lock on buffer */
     pcp_guard_lock(guard);
     /*Insert some garbage that will be discarded anyway, 
@@ -180,7 +178,7 @@ static inline void finilize_read(Circular_Buffer* char_buffer, PCP_Guard* guard)
 }
 
 
-static inline void finilize_write(Circular_Buffer* buffer, PCP_Guard* guard) {
+static inline void finilize_write(CircularBuffer* buffer, PCPGuard* guard) {
     /*lock on buffer */
     pcp_guard_lock(guard);
     /*Insert some garbage that will be discarded anyway, 

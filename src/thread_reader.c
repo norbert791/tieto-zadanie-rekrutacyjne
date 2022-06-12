@@ -19,7 +19,7 @@
  * Writer -> checks is_working and leaves
  * parsing thread -> waits for bytes to read
  */
-static inline void finilize(Circular_Buffer* char_buffer, PCP_Guard* char_buffer_guard);
+static inline void finilize(CircularBuffer* char_buffer, PCPGuard* char_buffer_guard);
 
 void* thread_reader(void* reader_aguments) {
 
@@ -30,17 +30,17 @@ void* thread_reader(void* reader_aguments) {
     }
 
     const struct timespec sleep_time = {.tv_nsec = 0, .tv_sec = 1};
-    PCP_Guard* char_buffer_guard = NULL;
-    PCP_Guard* logger_buffer_guard = NULL;
-    Circular_Buffer* logger_buffer = NULL;
-    Circular_Buffer* char_buffer = NULL;
-    Watchdog_Control_Unit* control_unit = NULL;
+    PCPGuard* char_buffer_guard = NULL;
+    PCPGuard* logger_buffer_guard = NULL;
+    CircularBuffer* logger_buffer = NULL;
+    CircularBuffer* char_buffer = NULL;
+    WatchdogControlUnit* control_unit = NULL;
     bool* is_working = NULL;
     pthread_mutex_t* working_mtx = NULL;
     FILE* input_file = NULL;
 
     {
-        thread_reader_arguments* temp = reader_aguments;
+        ThreadReaderArguments* temp = reader_aguments;
 
         char_buffer_guard = temp->char_buffer_guard;
         char_buffer = temp->char_buffer;
@@ -104,7 +104,7 @@ void* thread_reader(void* reader_aguments) {
     return NULL;
 }
 
-static inline void finilize(Circular_Buffer* char_buffer, PCP_Guard* char_buffer_guard) {
+static inline void finilize(CircularBuffer* char_buffer, PCPGuard* char_buffer_guard) {
     /*lock on buffer guard*/
     pcp_guard_lock(char_buffer_guard);
     /*Insert some garbage that will be discarded anyway, 

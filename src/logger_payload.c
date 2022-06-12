@@ -3,13 +3,13 @@
 #include <errno.h>
 #include "logger_payload.h"
 
-typedef struct Logger_Payload {
+typedef struct LoggerPayload {
     size_t message_size;
-    logger_payload_type type;
-    char message[]; //FAM
-} Logger_Payload;
+    ELoggerPayloadType type;
+    char message[]; /*FAM*/
+} LoggerPayload;
 
-Logger_Payload* logger_payload_new(const logger_payload_type type, const char message[const restrict static 1]) {
+LoggerPayload* logger_payload_new(const ELoggerPayloadType type, const char message[const restrict static 1]) {
 
     if (strcmp(message, "") == 0) {
         return NULL;
@@ -17,7 +17,7 @@ Logger_Payload* logger_payload_new(const logger_payload_type type, const char me
 
     const size_t message_size = strlen(message);
 
-    Logger_Payload* result = malloc(sizeof(*result) + sizeof(*result->message) * (message_size + 1));
+    LoggerPayload* result = malloc(sizeof(*result) + sizeof(*result->message) * (message_size + 1));
     if (result == NULL) {
         errno = 0;
         return NULL;
@@ -30,19 +30,19 @@ Logger_Payload* logger_payload_new(const logger_payload_type type, const char me
     return result;
 }
 
-void logger_payload_delete(Logger_Payload* restrict const payload) {
+void logger_payload_delete(LoggerPayload* const payload) {
     free(payload);
 }
 
-const char* logger_payload_get_message(Logger_Payload* restrict const payload) {
+const char* logger_payload_get_message(LoggerPayload* const payload) {
     return payload->message;
 }
 
-logger_payload_type logger_payload_get_type(Logger_Payload* restrict const payload) {
+ELoggerPayloadType logger_payload_get_type(LoggerPayload* const payload) {
     return payload->type;
 }
 
-const char* logger_payload_type_to_str(logger_payload_type type) {
+const char* logger_payload_type_to_str(ELoggerPayloadType type) {
     static const char* message_str[] = {"Warning", "Error"};
     return message_str[type];
 }

@@ -72,16 +72,16 @@ static void parse_line_test() {
 static void compute_core_time_test() {
     const uint64_t prev[10] = {89133, 407, 43245, 1141342, 36564, 5537, 819, 0, 0, 0};
 
-    proc_parser_cpu_time result = proc_parser_compute_core_time(prev);
-    const proc_parser_cpu_time expected_result = {.idle = 1177906, .total = 1317047};
+    ProcParserCpuTime result = proc_parser_compute_core_time(prev);
+    const ProcParserCpuTime expected_result = {.idle = 1177906, .total = 1317047};
 
     assert(expected_result.idle == result.idle);
     assert(expected_result.total == result.total);
 }
 
 static void compute_core_usage_with_time() {
-    const proc_parser_cpu_time previous = {.idle = 1180000, .total = 1310000};
-    const proc_parser_cpu_time current = {.idle = 1200000, .total = 1400000};
+    const ProcParserCpuTime previous = {.idle = 1180000, .total = 1310000};
+    const ProcParserCpuTime current = {.idle = 1200000, .total = 1400000};
 
     double expected_result = 0.77;
     double computed_result = proc_parser_cpu_time_compute_usage(&previous, &current);
