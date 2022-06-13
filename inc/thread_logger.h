@@ -1,8 +1,8 @@
 /**
  * @file thread_logger.h
- * @brief thread_logger is function working in loop unitl *is_working is true
+ * @brief thread_logger is function working in loop until *is_working is true
  *  The function reads pointers to logger_payloads from CircularBuffer and creates
- *  log entry in logger_output file. After payload has beem successfully stored, the payload is
+ *  log entry in logger_output file. After payload has been successfully stored, the payload is
  *  deleted. Hence it is not safe to refer to payloads in any other way once they've been inserted
  *  into the buffer.
  */
@@ -37,7 +37,7 @@ void* thread_logger(void* thread_logger_args);
  * @param payload_ptr_buffer pointer to valid pointer buffer
  * @param message message that will be inserted into payload
  * @param type type of the message
- * @return true iff function sent payload successfuly 
+ * @return true iff function sent payload successfully
  */
 inline bool thread_logger_send_log(PCPGuard* restrict payload_buffer_guard, 
                                             CircularBuffer* restrict payload_ptr_buffer, 

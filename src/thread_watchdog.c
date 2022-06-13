@@ -5,8 +5,8 @@
 
 
 void* thread_watchdog(void* args) {
-
     if (args == NULL) {
+        perror("Watchdog: argument is NULL\n");
         return NULL;
     }
 
@@ -36,9 +36,8 @@ void* thread_watchdog(void* args) {
         pthread_mutex_unlock(mutex);
 
         if (watchdog_check_puppies(watchdog)) {
-            puts("Watchdog: One of the theads is not responding. Aborting...\n");
+            puts("Watchdog: One of the threads is not responding. Aborting...\n");
             abort();
-            break;
         }
         if (nanosleep(&sleep_time, NULL) != 0) {
             errno = 0;

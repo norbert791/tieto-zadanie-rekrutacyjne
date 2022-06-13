@@ -1,10 +1,7 @@
-#include <stdbool.h>
 #include <pthread.h>
-#include <errno.h>
-#include "pcp_guard.h" 
+#include "pcp_guard.h"
 
 EPCPStatus pcp_guard_init(PCPGuard* const guard) {
-
     if (guard == NULL) {
         return NULL_ARGUMENT;
     }   
@@ -22,11 +19,9 @@ EPCPStatus pcp_guard_init(PCPGuard* const guard) {
     }
 
     return PCP_SUCCESS;
-
 }
 
 EPCPStatus pcp_guard_destroy(PCPGuard* const guard) {
-
     if (pthread_mutex_destroy(&(guard->mutex)) != 0) {
         return MUTEX_FAILURE;
     }

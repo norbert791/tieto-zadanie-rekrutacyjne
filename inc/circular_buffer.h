@@ -36,7 +36,7 @@ CircularBuffer* circular_buffer_new(size_t buffer_size, size_t element_size);
  * 
  * @param buffer Pointer to either valid CircularBuffer or nullptr. 
  * In former case, the pointed CircularBuffer will be deallocated. 
- * In lattter one, nothing will hapen
+ * In latter case, nothing will happen
  */
 void circular_buffer_delete(CircularBuffer* buffer);
 
@@ -44,10 +44,10 @@ void circular_buffer_delete(CircularBuffer* buffer);
  * @brief Insert single element into circular buffer.
  * 
  * @param buffer pointer to valid CircularBuffer which will store the inserted element
- * @param element pointer to the eelement that shall be copied into the buffer. If the size of the inserted element
+ * @param element pointer to the element that shall be copied into the buffer. If the size of the inserted element
  * is not equal to element_size of the buffer, the behaviour is undefined.
  * @return 1 iff insertion was successful, 0 iff buffer is already full and element could not be inserted. 
- * -1 if at least one of the argumets was nullptr
+ * -1 if at least one of the arguments was nullptr
  */
 int circular_buffer_insert_single(CircularBuffer* restrict buffer, const void* restrict element);
 
@@ -57,7 +57,7 @@ int circular_buffer_insert_single(CircularBuffer* restrict buffer, const void* r
  * 
  * @param buffer pointer to valid CircularBuffer from which an element will be retrieved.
  * @param dest pointer to memory where retrieved object will be stored.
- * @return 1 iff element was succesfully retrieved. 0 iff buffer was empty. NULL_PTR_ERROR if at least one of the parameter was nullptr.
+ * @return 1 iff element was successfully retrieved. 0 iff buffer was empty. NULL_PTR_ERROR if at least one of the parameter was nullptr.
  */
 int circular_buffer_remove_single(CircularBuffer* restrict buffer, void* restrict dest);
 
@@ -65,7 +65,7 @@ int circular_buffer_remove_single(CircularBuffer* restrict buffer, void* restric
  * @brief Return number of elements available for write
  * 
  * @param c_b pointer to valid CircularBuffer
- * @return size_t number of elements that can be sucessfuly wrote into the buffer
+ * @return size_t number of elements that can be successfully wrote into the buffer
  */
 size_t circular_buffer_write_available(const CircularBuffer* c_b);
 

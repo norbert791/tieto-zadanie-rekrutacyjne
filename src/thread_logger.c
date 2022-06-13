@@ -11,7 +11,6 @@ bool thread_logger_send_log(PCPGuard* restrict payload_buffer_guard,
 static inline void persist_to_file(FILE* logger_file, LoggerPayload* payload);
 
 void* thread_logger(void* args) {
-
     if (args == NULL) {
         perror("logger: args equal to NULL\n");
         return NULL;
@@ -69,7 +68,6 @@ void* thread_logger(void* args) {
 }
 
 static inline void persist_to_file(FILE* restrict logger_file, LoggerPayload* restrict payload) {
-
     char time_buffer[26];
     time_t time_now;
     time(&time_now);

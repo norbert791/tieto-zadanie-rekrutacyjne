@@ -16,18 +16,13 @@
  * Writer -> checks working and leaves
  * Reader -> waits for bytes to read
  */
-static inline void finilize(PCPGuard* double_buffer_guard, CircularBuffer* double_buffer);
+static inline void finalize(PCPGuard* double_buffer_guard, CircularBuffer* double_buffer);
 
 static void print_usage(double array[static 1]);
 
 void* thread_printer(void* printer_arguments) {
-
     if (printer_arguments == NULL) {
         perror("One of arguments equal to NULL\n");
-        return NULL;
-    }
-
-    if (printer_arguments == NULL) {
         return NULL;
     }
 
@@ -67,7 +62,7 @@ void* thread_printer(void* printer_arguments) {
     while(true) {
         pthread_mutex_lock(working_mutex); 
         if (!*working) {
-            finilize(double_buffer_guard, double_buffer);
+            finalize(double_buffer_guard, double_buffer);
             pthread_mutex_unlock(working_mutex);
             watchdog_unit_atomic_finish(control_unit);
             break;
@@ -105,12 +100,12 @@ static void print_usage(double array[static 1]) {
     }
 }
 
-static inline void finilize(PCPGuard* double_buffer_guard, CircularBuffer* double_buffer) {
+static inline void finalize(PCPGuard* double_buffer_guard, CircularBuffer* double_buffer) {
     /*The lock on buffer guard*/
     pcp_guard_lock(double_buffer_guard);
     double temp;
     /*Removing single element 
-    NOTE: nothing will happend if buffer is empty*/
+    NOTE: nothing will happen if buffer is empty*/
     circular_buffer_remove_single(double_buffer, &temp);
     /*Set parser free if he is currently locked*/
     pcp_guard_notify_producer(double_buffer_guard);

@@ -28,12 +28,11 @@ typedef struct ProcParserCpuTime {
  * 
  * @param buffer null-terminated string with at least 4 characters
  * @param result array for storing result with space for at least 10 elements
- * @return 
- * 
- * if line started with 'cpu[0-9]' non-negative number indicating how many values have been parsed and stored successfully, equal to PROC_PARSER_SUCCESS if all values were parsed successfully
- * PROC_PARSER_TOTAL_USAGE_LINE if line started exactly with 'cpu ' and was skipped, without altering the result array.
- * PROC_PARSER_DISCARD_LINE if did not start with 'cpu' and was skipped, without altering the result array.
- * PROC_PARSER_FAIL if error occurred.
+ * @return if line started with 'cpu[0-9]' non-negative number indicating how many values have been parsed and stored successfully,
+ * equal to PROC_PARSER_SUCCESS if all values were parsed successfully
+ * @return PROC_PARSER_TOTAL_USAGE_LINE if line started exactly with 'cpu ' and was skipped, without altering the result array.
+ * @return PROC_PARSER_DISCARD_LINE if did not start with 'cpu' and was skipped, without altering the result array.
+ * @return PROC_PARSER_FAIL if error occurred.
  *  
  * This distinction can be used for telling whether currently parsed section is before
  * the section starting with cpu0, cpu1,... or past it. 

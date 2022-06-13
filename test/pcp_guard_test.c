@@ -10,7 +10,7 @@ typedef struct TestArgs {
 }TestArgs;
 
 /**
- * @brief This test succeds if no error occurs
+ * @brief This test succeeds if no error occurs
  * 
  */
 static void lock();
@@ -24,7 +24,6 @@ static void* consumer_wait(void* args);
 static void* producer_wait(void* args);
 
 static void* producer_wait(void* args) {
-     
     volatile bool* temp = ((TestArgs*)args)->var;
     PCPGuard* guard = ((TestArgs*)args)->guard;
     pcp_guard_lock(guard);
@@ -50,7 +49,6 @@ static void* consumer_wait(void* args) {
 }
 
 static void lock() {
-
     PCPGuard guard;
     if (pcp_guard_init(&guard) != PCP_SUCCESS) {
         perror("Warning: guard init failed during test\n");
@@ -82,7 +80,6 @@ static void notify_consumer() {
 }
 
 static void wait_for_consumer() {
-
     pthread_t consumer;
     PCPGuard guard;
     pcp_guard_init(&guard);
@@ -91,7 +88,7 @@ static void wait_for_consumer() {
 
     TestArgs args = {.guard = &guard, .var = &var};
 
-    if (pthread_create(&consumer, NULL, producer_wait, &args) == -1) {
+    if (pthread_create(&consumer, NULL, producer_wait, &args) != 0) {
         perror("Warning: thread creation failed\n");
         return ;
     }
@@ -117,7 +114,6 @@ static void wait_for_consumer() {
 }
 
 static void wait_for_producer() {
-
     pthread_t consumer;
     PCPGuard guard;
     pcp_guard_init(&guard);
@@ -126,7 +122,7 @@ static void wait_for_producer() {
 
     TestArgs args = {.guard = &guard, .var = &var};
 
-    if (pthread_create(&consumer, NULL, consumer_wait, &args) == -1) {
+    if (pthread_create(&consumer, NULL, consumer_wait, &args) != 0) {
         perror("Warning: thread creation failed\n");
         return;
     }

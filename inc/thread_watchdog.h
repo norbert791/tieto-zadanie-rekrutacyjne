@@ -1,12 +1,12 @@
 /**
  * @file thread_watchdog.h   
- * @brief thread that uses watchdog to watchover threads
+ * @brief thread that uses watchdog to oversee threads
  * if one of the threads does not ping their control_unit, then
  * the entire program will be aborted.
  * 
  */
-#ifndef THREADWATCH_DOG_H
-#define THREADWATCH_DOG_H
+#ifndef THREAD_WATCHDOG_H
+#define THREAD_WATCHDOG_H
 
 #include <pthread.h>
 #include "watchdog.h"

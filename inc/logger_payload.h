@@ -33,7 +33,7 @@ void logger_payload_delete(LoggerPayload* payload);
 /**
  * @brief Get pointer to string containing message.
  * 
- * @param payload pointer to payload whose message shall be recieved
+ * @param payload pointer to payload whose message shall be received
  * @return const char* pointer to read-only string containing payload message.
  */
 const char* logger_payload_get_message(LoggerPayload* payload);
@@ -50,7 +50,7 @@ ELoggerPayloadType logger_payload_get_type(LoggerPayload* payload);
  * @brief get the pointer to read-only string representing logger_payload_constant
  * 
  * @param type payload type
- * @return const char* pointer to read-only sring representing payload type
+ * @return const char* pointer to read-only string representing payload type
  */
 const char* logger_payload_type_to_str(ELoggerPayloadType type);
 

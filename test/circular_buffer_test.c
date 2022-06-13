@@ -22,7 +22,6 @@ static void new_test() {
 }
 
 static void insert_test() {
-
     CircularBuffer* buffer = circular_buffer_new(buffer_size, sizeof(char));
     char test[buffer_size + 1] = {0};
 
@@ -57,7 +56,7 @@ static void remove_test() {
     assert(circular_buffer_write_available(buffer) == buffer_size);
 
     for (size_t i = 0; i < buffer_size; i++) {
-        /*Assertions about inserting are made in another function*/
+        /*Assertions about inserting are in another function*/
         circular_buffer_insert_single(buffer, &test[i]);
     }
     

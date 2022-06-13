@@ -1,6 +1,6 @@
 /**
  * @file thread_parser.h
- * @brief Parsing thread that uses char_buffer to recieve bytes of raw data and
+ * @brief Parsing thread that uses char_buffer to receive bytes of raw data and
  * double_buffer to send % of core usage as double value. Each sequence of parsed data is
  * separated with THREAD_PARSER_END
  *
@@ -17,7 +17,7 @@
 #include "pcp_guard.h"
 
 /**
- * Used for sperating one sequence of output data from another
+ * Used for separating one sequence of output data from another
  */
 #define THREAD_PARSER_END -1.0
 

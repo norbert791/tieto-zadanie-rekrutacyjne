@@ -43,8 +43,8 @@ typedef struct PCPGuard {
  * initialized is undefined behaviour.
  * 
  * @param guard pointer to uninitialized PCPGuard.
- * @return EPCPStatus On success PCP_SUCCESS is returned. On failure,
- * returns constant indicating which part of the initialization failed.
+ * @return EPCPStatus On success PCP_SUCCESS is returned.
+ * @return On failure returns constant indicating which part of the initialization failed.
  * Additionally errno may be set. @see man pthread_mutex_init(3), @see man pthread_cond_init(3)
  */
 EPCPStatus pcp_guard_init(PCPGuard* guard);
@@ -53,7 +53,7 @@ EPCPStatus pcp_guard_init(PCPGuard* guard);
  * @brief Destroy fields fields in target PCPGuard. It shall be safe to call this function
  * on pointer to initialized guard unless said guard is in used or will be used before this function returns.
  * Otherwise, the behaviour is undefined, although EPCPStatus indicating which part of the destruction failed may be returned
- * and additionaly errno may be set @see pthread_mutex_destroy(3) @see pthread_cond_destroy(3); in such case
+ * and additionally errno may be set @see pthread_mutex_destroy(3) @see pthread_cond_destroy(3); in such case
  * the state of the guard is undefined though.
  * 
  * @param guard pointer to initialized PCPGuard
@@ -129,7 +129,7 @@ inline int pcp_guard_wait_for_consumer(PCPGuard* guard) {
 
 
 /**
- * @brief wrappter for pthread_cond_timedwait.
+ * @brief wrapper for pthread_cond_timedwait.
  * The function behaves exactly as though pthrad_cond_timedwait(PCPGuard->producer, (abstime)) would be called
  * @see man pthread_cond_timedwait(3)
  * 

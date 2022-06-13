@@ -19,9 +19,6 @@ add_executable(pcp_guard_test ${PROJECT_SOURCE_DIR}/src/pcp_guard.c pcp_guard_te
 add_executable(logger_payload_test ${PROJECT_SOURCE_DIR}/src/logger_payload.c logger_payload_test.c)
 add_executable(watchdog_test ${PROJECT_SOURCE_DIR}/src/watchdog.c watchdog_test.c)
 
-#target_link_libraries(circular_buffer_test TestedFiles)
-#target_link_libraries(proc_parser_test TestedFiles)
-
 add_test(NAME circular_buffer_test  COMMAND circular_buffer_test)
 add_test(NAME proc_parser_test  COMMAND proc_parser_test)
 add_test(NAME pcp_guard_test COMMAND pcp_guard_test)

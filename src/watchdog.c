@@ -19,7 +19,6 @@ int watchdog_unit_atomic_ping(WatchdogControlUnit* puppy);
 int watchdog_unit_atomic_finish(WatchdogControlUnit* puppy);
 
 Watchdog* watchdog_new(const size_t size) {
-
     if (size == 0) {
         return NULL;
     }
@@ -116,4 +115,21 @@ size_t watchdog_number_of_units(Watchdog* const watch_dog) {
     else {
         return watch_dog->number_of_units;
     }
+}
+
+int watchdog_unit_init(WatchdogControlUnit* puppy, pthread_t thread_id) {
+
+    if (puppy == NULL) {
+        return -1;
+    }
+    puppy->status = WATCH_DOG_STATUS_UP;
+    puppy->thread_id = thread_id;
+    return pthread_mutex_init(&puppy->unit_mutex, NULL);
+}
+
+int watchdog_unit_destroy(WatchdogControlUnit* puppy) {
+    if (puppy == NULL) {
+        return -1;
+    }
+    return pthread_mutex_destroy(&puppy->unit_mutex);
 }

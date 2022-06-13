@@ -1,6 +1,6 @@
 /**
  * @file thread_printer.h
- * @brief Thread that recieves parsed data through circular_buffer_guard
+ * @brief Thread that receives parsed data through circular_buffer_guard
  * and prints it to terminal.
  * 
  */
@@ -13,7 +13,7 @@
 #include "circular_buffer.h"
 
 /**
- * @brief thread_printer argumnets:
+ * @brief thread_printer arguments:
  * circular double buffer for retrieving parsed data
  * and guard for synchronization
  * 
@@ -30,6 +30,6 @@ typedef struct ThreadPrinterArguments
 } ThreadPrinterArguments;
 
 
-void* thread_printer(void* printer_argumets);
+void* thread_printer(void* printer_arguments);
 
 #endif

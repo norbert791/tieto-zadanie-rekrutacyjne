@@ -19,12 +19,11 @@
  * Writer -> checks is_working and leaves
  * parsing thread -> waits for bytes to read
  */
-static inline void finilize(CircularBuffer* char_buffer, PCPGuard* char_buffer_guard);
+static inline void finalize(CircularBuffer* char_buffer, PCPGuard* char_buffer_guard);
 
-void* thread_reader(void* reader_aguments) {
-
+void* thread_reader(void* reader_arguments) {
     /*Sanity check*/
-    if (reader_aguments == NULL) {
+    if (reader_arguments == NULL) {
         perror("NULL argument passed");
         return NULL;
     }
@@ -40,7 +39,7 @@ void* thread_reader(void* reader_aguments) {
     FILE* input_file = NULL;
 
     {
-        ThreadReaderArguments* temp = reader_aguments;
+        ThreadReaderArguments* temp = reader_arguments;
 
         char_buffer_guard = temp->char_buffer_guard;
         char_buffer = temp->char_buffer;
@@ -64,16 +63,17 @@ void* thread_reader(void* reader_aguments) {
     while (true) {
         pthread_mutex_lock(working_mtx);
         if (!*is_working) {
-            finilize(char_buffer, char_buffer_guard);
+            finalize(char_buffer, char_buffer_guard);
             pthread_mutex_unlock(working_mtx);
             watchdog_unit_atomic_finish(control_unit);
             break;
         }
         pthread_mutex_unlock(working_mtx);
         
-        char input_char = fgetc(input_file);
+        int input_char_int = fgetc(input_file);
         
-        if (input_char != EOF) {
+        if (input_char_int != EOF) {
+            char input_char = (char) input_char_int;
             pcp_guard_lock(char_buffer_guard);
 
             if (circular_buffer_insert_single(char_buffer, &input_char) == 0) {
@@ -98,13 +98,13 @@ void* thread_reader(void* reader_aguments) {
         else if (ferror(input_file)) {
             clearerr(input_file);
             thread_logger_send_log(logger_buffer_guard, logger_buffer,
-                                   "File error during read atempt\n", LOGGER_PAYLOAD_TYPE_ERROR);
+                                   "File error during read attempt\n", LOGGER_PAYLOAD_TYPE_ERROR);
         }
     }
     return NULL;
 }
 
-static inline void finilize(CircularBuffer* char_buffer, PCPGuard* char_buffer_guard) {
+static inline void finalize(CircularBuffer* char_buffer, PCPGuard* char_buffer_guard) {
     /*lock on buffer guard*/
     pcp_guard_lock(char_buffer_guard);
     /*Insert some garbage that will be discarded anyway, 
@@ -113,6 +113,6 @@ static inline void finilize(CircularBuffer* char_buffer, PCPGuard* char_buffer_g
     circular_buffer_insert_single(char_buffer, &temp);
     /*If reader is lock on buffer guard, then it will be released after unlock*/
     pcp_guard_notify_consumer(char_buffer_guard);
-    /*Relase buffer guard*/
+    /*Release buffer guard*/
     pcp_guard_unlock(char_buffer_guard);
 }

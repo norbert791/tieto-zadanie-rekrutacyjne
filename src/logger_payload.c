@@ -10,7 +10,6 @@ typedef struct LoggerPayload {
 } LoggerPayload;
 
 LoggerPayload* logger_payload_new(const ELoggerPayloadType type, const char message[const restrict static 1]) {
-
     if (strcmp(message, "") == 0) {
         return NULL;
     }

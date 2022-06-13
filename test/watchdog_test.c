@@ -9,6 +9,17 @@ static void clear_test();
 static void ping_finish_test();
 static void lock_unlock_test();
 static void number_of_units_test();
+static void create_unit_destroy_test();
+
+void create_unit_destroy_test() {
+    assert(watchdog_unit_init(NULL, 0) == -1);
+    assert(watchdog_unit_destroy(NULL) == -1);
+    
+    WatchdogControlUnit unit;
+
+    assert(watchdog_unit_init(&unit, 0) == 0);
+    assert(watchdog_unit_destroy(&unit) == 0);
+}
 
 void ping_finish_test() {
     WatchdogControlUnit unit = {.status = WATCH_DOG_STATUS_DOWN, .thread_id = 0, .unit_mutex = PTHREAD_MUTEX_INITIALIZER};
@@ -128,6 +139,7 @@ int main() {
     ping_finish_test();
     lock_unlock_test();
     number_of_units_test();
+    create_unit_destroy_test();
 
     return 0;
 }

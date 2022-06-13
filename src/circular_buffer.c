@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 #include <errno.h>
 #include "circular_buffer.h"
 
@@ -42,11 +41,11 @@ int circular_buffer_insert_single(CircularBuffer* const restrict buffer, const v
         return NULL_PTR_ERROR;
     }
     else if (buffer->num_of_elements < buffer->buffer_max_size) {
-            memcpy(&(buffer->buffer[buffer->write_index * buffer->element_size]), element, buffer->element_size);
-            buffer->num_of_elements++;
-            buffer->write_index++;
-            buffer->write_index %= buffer->buffer_max_size;
-            return 1;
+        memcpy(&(buffer->buffer[buffer->write_index * buffer->element_size]), element, buffer->element_size);
+        buffer->num_of_elements++;
+        buffer->write_index++;
+        buffer->write_index %= buffer->buffer_max_size;
+        return 1;
     }
     return 0;
 }

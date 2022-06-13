@@ -16,17 +16,17 @@
  * Writer -> checks is_working and leaves
  * Reader -> waits for bytes to read
  */
-static inline void finilize_write(CircularBuffer* char_buffer, PCPGuard* guard);
+static inline void finalize_write(CircularBuffer* char_buffer, PCPGuard* guard);
 
 /**
  * @brief Clean up before leaving 
- * Situation simillar to @see finilize_write
+ * Situation similar to @see finalize_write
  */
-static inline void finilize_read(CircularBuffer* char_buffer, PCPGuard* guard);
+static inline void finalize_read(CircularBuffer* char_buffer, PCPGuard* guard);
 
 void* thread_parser(void* args) {
-
     if (args == NULL) {
+        perror("Parser: null argument was given\n");
         return NULL;
     }
 
@@ -34,12 +34,6 @@ void* thread_parser(void* args) {
         temporary_buffer_size = 800,
         previous_usage_size = 100,
     };
-
-    /*Sanity check*/
-    if (args == NULL) {
-        /*Error handling*/
-        return NULL;
-    }
 
     CircularBuffer* char_buffer = NULL;
     CircularBuffer* double_buffer = NULL;
@@ -52,7 +46,6 @@ void* thread_parser(void* args) {
     pthread_mutex_t* working_mtx = NULL;
 
     size_t index = 0;
-    /*TODO: find if there is upper limit for line width in proc/stat*/
     size_t computed_core = 0;
     char temporary_buffer[temporary_buffer_size];
     uint64_t parsed_data[10] = {0};
@@ -85,8 +78,8 @@ void* thread_parser(void* args) {
         pthread_mutex_lock(working_mtx);
         if (!*is_working) {
             pthread_mutex_unlock(working_mtx);
-            finilize_read(char_buffer, char_buffer_guard);
-            finilize_write(double_buffer, double_buffer_guard);
+            finalize_read(char_buffer, char_buffer_guard);
+            finalize_write(double_buffer, double_buffer_guard);
             watchdog_unit_atomic_finish(control_unit);
             break;
         }
@@ -142,7 +135,7 @@ void* thread_parser(void* args) {
             }
             else {
                 thread_logger_send_log(logger_guard, logger_buffer,
-                "Parser: Buffer is to small to accomodate parsed results\n", LOGGER_PAYLOAD_TYPE_WARNING);
+                "Parser: Buffer is to small to accumulate parsed results\n", LOGGER_PAYLOAD_TYPE_WARNING);
             }
         }
         else {
@@ -164,7 +157,7 @@ void* thread_parser(void* args) {
 }
 
 
-static inline void finilize_read(CircularBuffer* char_buffer, PCPGuard* guard) {
+static inline void finalize_read(CircularBuffer* char_buffer, PCPGuard* guard) {
     /*lock on buffer */
     pcp_guard_lock(guard);
     /*Insert some garbage that will be discarded anyway, 
@@ -173,20 +166,20 @@ static inline void finilize_read(CircularBuffer* char_buffer, PCPGuard* guard) {
     circular_buffer_remove_single(char_buffer, &temp);
     /*Notify reader. It will lock either lock on is_working or on buffer */
     pcp_guard_notify_producer(guard);
-    /*Relase buffer */
+    /*Release buffer */
     pcp_guard_unlock(guard);
 }
 
 
-static inline void finilize_write(CircularBuffer* buffer, PCPGuard* guard) {
+static inline void finalize_write(CircularBuffer* char_buffer, PCPGuard* guard) {
     /*lock on buffer */
     pcp_guard_lock(guard);
     /*Insert some garbage that will be discarded anyway, 
     NOTE: if buffer is full, nothing will happen*/
     double d = 1.0;
-    circular_buffer_insert_single(buffer, &d);
+    circular_buffer_insert_single(char_buffer, &d);
     /*Notify reader. It will lock either lock on is_working or on buffer */
     pcp_guard_notify_consumer(guard);
-    /*Relase buffer */
+    /*Release buffer */
     pcp_guard_unlock(guard);
 }

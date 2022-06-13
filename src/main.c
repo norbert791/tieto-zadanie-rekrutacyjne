@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 #include <string.h>
 #include "circular_buffer.h"
@@ -155,19 +154,27 @@ static inline bool resource_initialization(CircularBuffer* restrict buffers[rest
 static inline void resources_release(CircularBuffer* restrict buffers[restrict static 3],
                                             FILE* restrict files[restrict static 2], Watchdog** restrict watchdog) {
 
-        circular_buffer_delete(buffers[0]);
-        circular_buffer_delete(buffers[1]);
-        
-        LoggerPayload* temp = NULL;
-        while (circular_buffer_remove_single(buffers[2], &temp) > 0) {
-            logger_payload_delete(temp);
-        }
-        temp = NULL;
-        circular_buffer_delete(buffers[2]);
-        watchdog_delete(*watchdog);
-        *watchdog = NULL;
-        fclose(files[0]);
-        fclose(files[1]);
+    circular_buffer_delete(buffers[0]);
+    circular_buffer_delete(buffers[1]);
+
+    LoggerPayload* temp = NULL;
+    while (circular_buffer_remove_single(buffers[2], &temp) > 0) {
+        logger_payload_delete(temp);
+    }
+    temp = NULL;
+    circular_buffer_delete(buffers[2]);
+    watchdog_delete(*watchdog);
+    *watchdog = NULL;
+    fclose(files[0]);
+    fclose(files[1]);
+
+    for (size_t i = 0; i < 3; i++) {
+        pcp_guard_destroy(&guard[i]);
+    }
+    for (size_t i = 0; i < 4; i++) {
+        watchdog_unit_destroy(&control_unit[i]);
+    }
+    pthread_mutex_destroy(&working_mutex);
 }
 
 static inline bool threads_initialization(CircularBuffer* restrict buffers[restrict static 3],
@@ -269,18 +276,15 @@ static inline bool threads_initialization(CircularBuffer* restrict buffers[restr
 }
 
 static inline void threads_join() {
-    //puts("reader\n");
     pthread_join(control_unit[0].thread_id, NULL);
-   // puts("parser\n");
     pthread_join(control_unit[1].thread_id, NULL);
-   // puts("printer\n");
     pthread_join(control_unit[2].thread_id, NULL);
-  //  puts("logger\n");
     pthread_join(control_unit[3].thread_id, NULL);
-  //  puts("watchdog\n");
     pthread_join(watchdog_id, NULL);
 }
 
-static void term_handler(int var) {
-    stop_condition = 0;
+static void term_handler(int signum) {
+    if (signum == SIGTERM || signum == SIGINT) {
+        stop_condition = 0;
+    }
 }
