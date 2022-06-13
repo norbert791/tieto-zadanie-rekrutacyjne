@@ -77,15 +77,17 @@ void* thread_printer(void* printer_arguments) {
         }
         pcp_guard_notify_producer(double_buffer_guard);
         pcp_guard_unlock(double_buffer_guard);
-
         temp_buffer[index++] = temp_double;
         if (temp_double == THREAD_PARSER_END) {
+            puts("________________\n");
             print_usage(temp_buffer);
+            puts("________________\n");
+            fflush(stdout);
             index = 0;
         }
         if (index == temp_buffer_size) {
             thread_logger_send_log(logger_guard, logger_buffer,
-            "Buffer size is to small\n", LOGGER_PAYLOAD_TYPE_WARNING);
+            "Buffer size is too small\n", LOGGER_PAYLOAD_TYPE_WARNING);
         }
         watchdog_unit_atomic_ping(control_unit);
     }

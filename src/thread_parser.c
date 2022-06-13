@@ -120,6 +120,10 @@ void* thread_parser(void* args) {
                 pcp_guard_unlock(double_buffer_guard);
             }
             else if (res == PROC_PARSER_DISCARD_LINE) {
+                /*If compute_core == 0, then we are still receiving lines with data unrelated to threads*/
+                if (computed_core == 0) {
+                    continue;
+                }
                 computed_core = 0;
                 double usage = THREAD_PARSER_END;
                 pcp_guard_lock(double_buffer_guard);
@@ -135,7 +139,7 @@ void* thread_parser(void* args) {
             }
             else {
                 thread_logger_send_log(logger_guard, logger_buffer,
-                "Parser: Buffer is to small to accumulate parsed results\n", LOGGER_PAYLOAD_TYPE_WARNING);
+                "Parser: Buffer is too small to accumulate parsed results\n", LOGGER_PAYLOAD_TYPE_WARNING);
             }
         }
         else {
@@ -144,7 +148,7 @@ void* thread_parser(void* args) {
             if (index == temporary_buffer_size) {
                 if (strncmp(temporary_buffer, "cpu", 3) == 0) {
                     thread_logger_send_log(logger_guard, logger_buffer,
-                    "Parser: Buffer size is to small to accumulate data sent by reader\n", LOGGER_PAYLOAD_TYPE_WARNING);
+                    "Parser: Buffer size is too small to accumulate data sent by reader\n", LOGGER_PAYLOAD_TYPE_WARNING);
                 }
                 temporary_buffer[temporary_buffer_size - 1] = '\0';
                 temporary_buffer[0] = input_char;

@@ -84,7 +84,6 @@ void* thread_reader(void* reader_arguments) {
             pcp_guard_unlock(char_buffer_guard);
         }
         else if (feof(input_file)) {
-
             watchdog_unit_atomic_ping(control_unit);
             
             if (nanosleep(&sleep_time, NULL) != 0) {

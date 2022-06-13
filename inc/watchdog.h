@@ -154,7 +154,7 @@ inline int watchdog_unit_atomic_finish(WatchdogControlUnit* puppy) {
  * @param puppy pointer to uninitialized WatchdogControlUnit 
  * @param thread_id pthread_t of thread that will be assigned to this control unit
  * @return return value of pthread_mutex_init used during initialization @see man pthread_mutex_init(3)
- * @return -1 if NULL was pussed as puppy
+ * @return -1 if NULL was passed as puppy
  */
 int watchdog_unit_init(WatchdogControlUnit* puppy, pthread_t thread_id);
 
