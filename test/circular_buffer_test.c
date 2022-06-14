@@ -1,15 +1,16 @@
 #include <assert.h>
 #include <inttypes.h>
+#include <tgmath.h> 
 #include "circular_buffer.h"
 
 typedef enum ECircularBufferTestConstants {
     buffer_size = 20
 } ECircularBufferTestConstants;
 
-static void insert_test();
-static void remove_test();
-static void new_test();
-static void insert_remove_test();
+static void insert_test(void);
+static void remove_test(void);
+static void new_test(void);
+static void insert_remove_test(void);
 
 static void new_test() {
     CircularBuffer* buffer = circular_buffer_new(0, 10);
@@ -26,7 +27,7 @@ static void insert_test() {
     char test[buffer_size + 1] = {0};
 
     for (size_t i = 0; i < buffer_size; i++) {
-        int_fast16_t res = circular_buffer_insert_single(buffer, &test[i]);
+        int res = circular_buffer_insert_single(buffer, &test[i]);
         /*insertions should be successful*/
         assert(res == 1);
     }
@@ -64,8 +65,8 @@ static void remove_test() {
     assert(circular_buffer_write_available(buffer) == 0);
 
     for (size_t i = 0; i < buffer_size; i++) {
-        int_fast16_t res = circular_buffer_remove_single(buffer, &temp);
-        assert(temp == test[i]);
+        int res = circular_buffer_remove_single(buffer, &temp);
+        assert(fabs(temp - test[i]) < 0.1);
         assert(res == 1);
     }
 
@@ -82,7 +83,7 @@ static void remove_test() {
 static void insert_remove_test() {
     uint32_t test[buffer_size];
     uint32_t temp;
-    for (size_t i = 0; i < buffer_size; i++) {
+    for (uint32_t i = 0; i < buffer_size; i++) {
         test[i] = i;
     }
 

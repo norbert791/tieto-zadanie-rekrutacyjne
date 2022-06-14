@@ -1,4 +1,3 @@
-#include <curses.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "thread_printer.h"
@@ -78,7 +77,7 @@ void* thread_printer(void* printer_arguments) {
         pcp_guard_notify_producer(double_buffer_guard);
         pcp_guard_unlock(double_buffer_guard);
         temp_buffer[index++] = temp_double;
-        if (temp_double == THREAD_PARSER_END) {
+        if (temp_double < 0.0) {
             puts("________________\n");
             print_usage(temp_buffer);
             puts("________________\n");
@@ -96,7 +95,7 @@ void* thread_printer(void* printer_arguments) {
 
 static void print_usage(double array[static 1]) {
     size_t index = 0;
-    while (array[index] != THREAD_PARSER_END) {
+    while (array[index] >= 0.0) {
         printf("Core #%zu usage: %.2F%%\n", index, array[index]);
         index++;
     }

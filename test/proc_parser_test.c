@@ -3,9 +3,9 @@
 #include "proc_parser.h"
 #include "assert.h"
 
-static void parse_line_test();
-static void compute_core_time_test();
-static void compute_core_usage_with_time();
+static void parse_line_test(void);
+static void compute_core_time_test(void);
+static void compute_core_usage_with_time(void);
 
 static void parse_line_test() {
 

@@ -5,7 +5,6 @@
 
 
 int proc_parser_parse_line(const char buffer[const restrict static 5], uint64_t result[const restrict static 10]) {
-    static const char* specifiers = "%*s" " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64;
     
     if (strncmp(buffer, "cpu", 3) != 0) {
         return PROC_PARSER_DISCARD_LINE;
@@ -14,7 +13,8 @@ int proc_parser_parse_line(const char buffer[const restrict static 5], uint64_t 
         return PROC_PARSER_TOTAL_USAGE_LINE;
     }
     
-    int symbols_read = sscanf(buffer, specifiers, &result[0], &result[1], &result[2], &result[3], &result[4],
+    int symbols_read = sscanf(buffer, "%*s" " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 
+    " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64, &result[0], &result[1], &result[2], &result[3], &result[4],
                               &result[5], &result[6], &result[7], &result[8], &result[9]);
 
     if (symbols_read == EOF) {

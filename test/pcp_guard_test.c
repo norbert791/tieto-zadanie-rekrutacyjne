@@ -13,12 +13,12 @@ typedef struct TestArgs {
  * @brief This test succeeds if no error occurs
  * 
  */
-static void lock();
-static void notify_producer();
-static void notify_consumer();
-static void wait_for_producer();
-static void wait_for_consumer();
-static void timed_wait();
+static void lock(void);
+static void notify_producer(void);
+static void notify_consumer(void);
+static void wait_for_producer(void);
+static void wait_for_consumer(void);
+static void timed_wait(void);
 
 static void* consumer_wait(void* args);
 static void* producer_wait(void* args);

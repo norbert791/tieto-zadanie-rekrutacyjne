@@ -35,10 +35,10 @@ static ThreadPrinterArguments printer_args;
 static ThreadWatchdogArguments watchdog_args;
 static ThreadLoggerArguments logger_args;
 
-static inline void resources_release();
-static inline bool resource_initialization();
-static inline bool threads_initialization();
-static inline void threads_join();
+static inline void resources_release(void);
+static inline bool resource_initialization(void);
+static inline bool threads_initialization(void);
+static inline void threads_join(void);
 static void term_handler(int sigterm);
 
 int main() {
@@ -50,6 +50,7 @@ int main() {
     struct sigaction action;
     memset(&action, 0, sizeof(action));
     action.sa_handler = term_handler;
+    
     if (sigaction(SIGTERM, &action, NULL) == -1) {
         errno = 0;
         perror("Sigaction error\n");

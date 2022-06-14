@@ -19,10 +19,10 @@
 typedef struct Watchdog Watchdog;
 
 typedef enum EWatchdogStatus {
-    WATCH_DOG_STATUS_UP,
-    WATCH_DOG_STATUS_DOWN,
-    WATCH_DOG_STATUS_FINISHED,
-    WATCH_DOG_STATUS_ROUGE
+    WATCHDOG_STATUS_UP,
+    WATCHDOG_STATUS_DOWN,
+    WATCHDOG_STATUS_FINISHED,
+    WATCHDOG_STATUS_ROUGE
 } EWatchdogStatus;
 
 /**
@@ -36,7 +36,7 @@ typedef struct WatchdogControlUnit {
     EWatchdogStatus status;
 } WatchdogControlUnit;
 
-#define WATCHDOG_CONTROL_UNIT_INIT {PTHREAD_MUTEX_INITIALIZER, 0, WATCH_DOG_STATUS_UP}
+#define WATCHDOG_CONTROL_UNIT_INIT {PTHREAD_MUTEX_INITIALIZER, 0, WATCHDOG_STATUS_UP}
 
 /**
  * @brief Set flag inside control unit to declare that the thread is still operating
@@ -44,16 +44,16 @@ typedef struct WatchdogControlUnit {
  * @param unit pointer to valid control unit
  */
 inline void watchdog_ping(WatchdogControlUnit* unit) {
-    unit->status = WATCH_DOG_STATUS_UP;
+    unit->status = WATCHDOG_STATUS_UP;
 }
 
 /**
  * @brief Mark control unit as finished. Control unit marked as finished shall be ignored by watchdog.
  * 
- * @param unit 
+ * @param unit pointer to valid control unit whose status shall be marked as finished
  */
 inline void watchdog_finish(WatchdogControlUnit* unit) {
-    unit->status = WATCH_DOG_STATUS_FINISHED;
+    unit->status = WATCHDOG_STATUS_FINISHED;
 }
 
 /**
@@ -65,46 +65,45 @@ inline void watchdog_finish(WatchdogControlUnit* unit) {
 Watchdog* watchdog_new(size_t number_of_puppies);
 /**
  * @brief create new watchdog that will be able to oversee number_of_puppies control units at most
- * @param pointer pointer to valid watchdog on success, NULL on failure or if number_of_puppies is equal to 0.
+ * @param watchdog pointer to valid watchdog on success, NULL on failure or if number_of_puppies is equal to 0.
  */
-void watchdog_delete(Watchdog* watch_dog);
+void watchdog_delete(Watchdog* watchdog);
 /**
  * @brief insert control unit into the collection maintained by watchdog.
  * 
- * @param watch_dog pointer to watchdog whose collection shall be enlarged with new control unit
+ * @param watchdog pointer to watchdog whose collection shall be enlarged with new control unit
  * @param control_unit control unit that shall be overseen by watchdog
  * @return true iff inserting puppy was successful
  * @return false otherwise
  */
-bool watchdog_add_puppy(Watchdog* restrict watch_dog, WatchdogControlUnit* restrict control_unit);
+bool watchdog_add_puppy(Watchdog* restrict watchdog, WatchdogControlUnit* restrict control_unit);
 /**
- * @brief Remove control unit from watchdog pointed by watch_dog
+ * @brief Remove control unit from watchdog pointed by watchdog
  * 
- * @param watch_dog
- * @param puppy 
+ * @param watchdog pointer to valid watchdog
+ * @param puppy pointer to valid control unit
  */
-void watchdog_remove_puppy(Watchdog* restrict watch_dog, WatchdogControlUnit* restrict puppy);
+void watchdog_remove_puppy(Watchdog* restrict watchdog, WatchdogControlUnit* restrict puppy);
 /**
- * @brief iterate ove the collection of control units stored inside watch_dog
+ * @brief iterate ove the collection of control units stored inside watchdog
  * 
- * @param puppy pointer to valid 
- * @param watch_dog pointer to valid watchdog
+ * @param watchdog pointer to valid watchdog
  */
-bool watchdog_check_puppies(Watchdog* watch_dog);
+bool watchdog_check_puppies(Watchdog* watchdog);
 /**
  * @brief remove all control units in collection that are no longer under
  * watchdog supervision (i.e. they are neither up nor down)
  *
  */
-void watchdog_clear(Watchdog* watch_dog);
+void watchdog_clear(Watchdog* watchdog);
 
 /**
  * @brief get number of watchdog units
  *
- * @param watch_dog pointer to valid watchdog
+ * @param watchdog pointer to valid watchdog
  * @return number of units stored in watchdog
  */
-size_t watchdog_number_of_units(Watchdog* watch_dog);
+size_t watchdog_number_of_units(Watchdog* watchdog);
 
 /**
  * @brief wrapper for getting size of watch_dg
@@ -133,7 +132,7 @@ inline int watchdog_unit_unlock(WatchdogControlUnit* unit) {
  */
 inline int watchdog_unit_atomic_ping(WatchdogControlUnit* puppy) {
     pthread_mutex_lock(&puppy->unit_mutex);
-    puppy->status = WATCH_DOG_STATUS_UP;
+    puppy->status = WATCHDOG_STATUS_UP;
     return pthread_mutex_unlock(&puppy->unit_mutex);
 }
 
@@ -144,7 +143,7 @@ inline int watchdog_unit_atomic_ping(WatchdogControlUnit* puppy) {
  */
 inline int watchdog_unit_atomic_finish(WatchdogControlUnit* puppy) {
     pthread_mutex_lock(&puppy->unit_mutex);
-    puppy->status = WATCH_DOG_STATUS_FINISHED;
+    puppy->status = WATCHDOG_STATUS_FINISHED;
     return pthread_mutex_unlock(&puppy->unit_mutex);
 }
 

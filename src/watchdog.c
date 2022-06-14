@@ -35,24 +35,24 @@ Watchdog* watchdog_new(const size_t size) {
     return result;
 }
 
-void watchdog_delete(Watchdog* const restrict watch_dog) {
-    free(watch_dog);
+void watchdog_delete(Watchdog* const restrict watchdog) {
+    free(watchdog);
 }
 
-bool watchdog_add_puppy(Watchdog* const restrict watch_dog, WatchdogControlUnit* puppy) {
-    if (watch_dog == NULL || puppy == NULL) {
+bool watchdog_add_puppy(Watchdog* const restrict watchdog, WatchdogControlUnit* puppy) {
+    if (watchdog == NULL || puppy == NULL) {
         return false;
     }
 
-    if (watch_dog->number_of_units == watch_dog->max_number_of_units) {
+    if (watchdog->number_of_units == watchdog->max_number_of_units) {
         return false;
     }
 
-    watch_dog->number_of_units++;
+    watchdog->number_of_units++;
     
-    for (size_t i = 0; i < watch_dog->max_number_of_units; i++) {
-        if (watch_dog->control_units[i] == NULL) {
-            watch_dog->control_units[i] = puppy;
+    for (size_t i = 0; i < watchdog->max_number_of_units; i++) {
+        if (watchdog->control_units[i] == NULL) {
+            watchdog->control_units[i] = puppy;
             return true;
         }
     }
@@ -60,33 +60,33 @@ bool watchdog_add_puppy(Watchdog* const restrict watch_dog, WatchdogControlUnit*
     return false;
 }
 
-void watchdog_remove_puppy(Watchdog* const restrict watch_dog, WatchdogControlUnit* puppy) {
+void watchdog_remove_puppy(Watchdog* const restrict watchdog, WatchdogControlUnit* puppy) {
     
-    if (watch_dog == NULL || puppy == NULL) {
+    if (watchdog == NULL || puppy == NULL) {
         return;
     }
 
-    for (size_t i = 0; i < watch_dog->max_number_of_units; i++) {
-        if (watch_dog->control_units[i] == puppy) {
-            watch_dog->control_units[i] = NULL;
-            watch_dog->number_of_units--;
+    for (size_t i = 0; i < watchdog->max_number_of_units; i++) {
+        if (watchdog->control_units[i] == puppy) {
+            watchdog->control_units[i] = NULL;
+            watchdog->number_of_units--;
             return;
         }
     }
 }
 
-bool watchdog_check_puppies(Watchdog* const watch_dog) {
+bool watchdog_check_puppies(Watchdog* const watchdog) {
     bool sweep = false;
-    for (size_t i = 0; i < watch_dog->max_number_of_units; i++) {
-        WatchdogControlUnit* puppy_ptr = watch_dog->control_units[i];
+    for (size_t i = 0; i < watchdog->max_number_of_units; i++) {
+        WatchdogControlUnit* puppy_ptr = watchdog->control_units[i];
         if (puppy_ptr != NULL) {
             watchdog_unit_lock(puppy_ptr);
-            if (puppy_ptr->status == WATCH_DOG_STATUS_UP) {
-                puppy_ptr->status = WATCH_DOG_STATUS_DOWN;
+            if (puppy_ptr->status == WATCHDOG_STATUS_UP) {
+                puppy_ptr->status = WATCHDOG_STATUS_DOWN;
             }
-            else if (puppy_ptr->status == WATCH_DOG_STATUS_DOWN) {
+            else if (puppy_ptr->status == WATCHDOG_STATUS_DOWN) {
                sweep = true;
-               puppy_ptr->status = WATCH_DOG_STATUS_ROUGE;
+               puppy_ptr->status = WATCHDOG_STATUS_ROUGE;
                watchdog_unit_unlock(puppy_ptr);
                continue;
             }
@@ -96,24 +96,24 @@ bool watchdog_check_puppies(Watchdog* const watch_dog) {
     return sweep;
 }
 
-void watchdog_clear(Watchdog* const watch_dog) {
-    for (size_t i = 0; i < watch_dog->max_number_of_units; i++) {
-        WatchdogControlUnit* puppy_ptr = watch_dog->control_units[i];
+void watchdog_clear(Watchdog* const watchdog) {
+    for (size_t i = 0; i < watchdog->max_number_of_units; i++) {
+        WatchdogControlUnit* puppy_ptr = watchdog->control_units[i];
 
-        if (puppy_ptr->status == WATCH_DOG_STATUS_ROUGE || puppy_ptr->status == WATCH_DOG_STATUS_FINISHED) {
-            watch_dog->control_units[i] = NULL;
+        if (puppy_ptr->status == WATCHDOG_STATUS_ROUGE || puppy_ptr->status == WATCHDOG_STATUS_FINISHED) {
+            watchdog->control_units[i] = NULL;
             puppy_ptr = NULL;
-            watch_dog->number_of_units--;
+            watchdog->number_of_units--;
         }
     }
 }
 
-size_t watchdog_number_of_units(Watchdog* const watch_dog) {
-    if (watch_dog == NULL) {
+size_t watchdog_number_of_units(Watchdog* const watchdog) {
+    if (watchdog == NULL) {
         return 0;
     }
     else {
-        return watch_dog->number_of_units;
+        return watchdog->number_of_units;
     }
 }
 
@@ -122,7 +122,7 @@ int watchdog_unit_init(WatchdogControlUnit* puppy, pthread_t thread_id) {
     if (puppy == NULL) {
         return -1;
     }
-    puppy->status = WATCH_DOG_STATUS_UP;
+    puppy->status = WATCHDOG_STATUS_UP;
     puppy->thread_id = thread_id;
     return pthread_mutex_init(&puppy->unit_mutex, NULL);
 }

@@ -71,12 +71,16 @@ static inline void persist_to_file(FILE* restrict logger_file, LoggerPayload* re
     char time_buffer[26];
     time_t time_now;
     time(&time_now);
+    int io_error = 0;
     if (ctime_r(&time_now, time_buffer) == NULL) {
-        fprintf(logger_file, "LOGGER ERROR: TIME\n");
-        fflush(logger_file);
+        io_error = fprintf(logger_file, "LOGGER ERROR: TIME\n");
+        io_error = fflush(logger_file);
         return;
     }
-    fprintf(logger_file, "Event: %s\nTime: %sMessage: %s \n ----------\n", 
+    io_error = fprintf(logger_file, "Event: %s\nTime: %sMessage: %s \n ----------\n", 
             logger_payload_type_to_str(logger_payload_get_type(payload)), time_buffer, logger_payload_get_message(payload));
-    fflush(logger_file);
+    io_error = fflush(logger_file);
+    if (io_error < 0) {
+        perror("Logger: writing to file failed\n");
+    }
 }
